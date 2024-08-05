@@ -1,0 +1,93 @@
+main {
+	margin: auto;
+	max-width: 800px;
+}
+
+button {
+	border: none;
+	background-color: #dcdcdc;
+	padding: 0.2rem 1rem;
+	border-radius: 0.2rem;
+	cursor: pointer;
+}
+
+input::placeholder {
+	color: #aaaaaa;
+}
+
+input {
+	padding: 0.2rem;
+	border: 1px solid #aaa;
+	flex-grow: 1;
+}
+
+.header-input {
+	padding: 0;
+}
+
+.header-input li {
+	display: flex;
+	padding: 0.4rem;
+	justify-content: flex-start;
+	align-items: center;
+}
+
+.header-input li:not(:last-child) {
+	border: 1px solid #aaaaaa;
+	border-bottom: none; /* Remove bottom border */
+}
+
+.header-input li:last-child {
+	border: 1px solid #aaaaaa;
+}
+
+.header-input li label {
+	width: 100px;
+}
+
+.header-input .css-date {
+	display: flex;
+}
+
+.list-table {
+	border-collapse: collapse;
+	width: 100%;
+	margin: 1rem 0;
+}
+
+.list-table th,
+.list-table td {
+	border: 1px solid #aaaaaa;
+	padding: 8px;
+	text-align: left;
+}
+
+.list-table th {
+	background-color: #f2f2f2;
+}
+
+.list-table td:first-child,
+.list-table th:first-child {
+	background-color: #dedede;
+	width: 0;
+}
+
+.primary-button {
+	background-color: blueviolet;
+	color: #ffffff;
+}
+.search-input-container {
+	display: flex;
+	flex-grow: 1;
+}
+
+.search-input-container i {
+	border: 1px solid #aaaaaa;
+	padding: 0.2rem;
+}
+
+.search-input {
+	display: flex;
+	gap: 2px;
+	flex-grow: 1;
+}

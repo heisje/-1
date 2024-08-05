@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>salesForm</title>
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+		/>
+		<link rel="stylesheet" href="../../global.css" />
+	</head>
+	<body>
+		<nav>
+			<a href="./itemSearch.html">품목조회</a>
+			<a href="./itemForm.html">품목등록</a>
+			<a href="../index.html">판매조회</a>
+			<a href="./saleForm.html">판매입력</a>
+		</nav>
+		<main>
+			<form id="dataForm" name="sales_input_form" onsubmit="return false;">
+				<div class="header-container">
+					<h1>판매등록</h1>
+
+					<ul class="header-input">
+						<li>
+							<label for="date">전표일자</label>
+							<div class="css-date">
+								<input
+									type="date"
+									id="date"
+									name="date"
+									class=""
+									placeholder="시작 날짜"
+								/>
+							</div>
+						</li>
+						<li>
+							<label for="itemList">품목</label>
+							<div class="search-input-container">
+								<div class="search-input">
+									<i
+										class="openWindow fa-solid fa-magnifying-glass"
+										data-href="itemSearch.html"
+										data-query-modal-type="get"
+									></i>
+									<input
+										type="search"
+										id="itemCode"
+										name="itemCode"
+										placeholder="품목 검색"
+									/>
+								</div>
+
+								<div id="search-items"></div>
+							</div>
+						</li>
+						<li>
+							<label for="count">수량</label>
+							<input
+								type="text"
+								id="count"
+								name="count"
+								class=""
+								placeholder="수량 입력"
+							/>
+						</li>
+						<li>
+							<label for="price">단가</label>
+							<input
+								type="text"
+								id="price"
+								name="price"
+								class=""
+								placeholder="단가 입력"
+							/>
+						</li>
+						<li>
+							<label for="description">적요</label>
+							<input
+								type="text"
+								id="description"
+								name="description"
+								class=""
+								placeholder="적요 입력"
+							/>
+						</li>
+					</ul>
+				</div>
+				<div id="formButtons">
+					<!-- <button id="sendMessage" class="primary-button" type="submit">
+						저장
+					</button>
+
+					<button type="button">삭제</button>
+					<button type="reset">다시작성</button>
+					<button type="button" class="closeButton">닫기</button>
+					닫기 버튼 수정 -->
+				</div>
+			</form>
+		</main>
+
+		<script type="module" src="./saleForm.js"></script>
+	</body>
+</html>
