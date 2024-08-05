@@ -91,3 +91,7 @@ input {
 	gap: 2px;
 	flex-grow: 1;
 }
+
+button {
+	margin-right: 2px;
+}

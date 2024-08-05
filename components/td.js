@@ -1,10 +1,10 @@
-function createDefaultCell(text) {
+function Cell(text) {
     const cell = document.createElement('td');
     cell.textContent = text;
     return cell;
 }
 
-function createCheckboxCell(id) {
+function CheckBox(id) {
     const cell = document.createElement('td');
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
@@ -13,7 +13,7 @@ function createCheckboxCell(id) {
     return cell;
 }
 
-function createButton(text, url) {
+function OpenButton(text, url) {
     const button = document.createElement('button');
     button.className = 'openWindow';
     button.setAttribute('data-href', url);
@@ -22,4 +22,4 @@ function createButton(text, url) {
     return button;
 }
 
-export { createDefaultCell, createCheckboxCell, createButton }
+export { Cell, CheckBox, OpenButton }

@@ -5,11 +5,6 @@ export class Modal {
             openType + targetHtml,
             "width=600,height=400"
         );
-
-        // this._messageHandler = this._messageHandler.bind(this); // this 바인딩
-        // this._callback = callback; // 콜백 함수 저장
-
-        // window.addEventListener("message", this._messageHandler);
     }
 
     _messageHandler = (event) => {
