@@ -1,5 +1,3 @@
-import { handleOpenWindow } from "../event/modal.js";
-
 function createDefaultCell(text) {
     const cell = document.createElement('td');
     cell.textContent = text;

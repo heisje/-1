@@ -1,16 +1,15 @@
 import { useQuery } from '../customhook/useQuery.js';
-import { FormManager } from '../manager/FormManager.js';
+import { Data } from '../data/data.js';
+import { SaleFormManager } from '../manager/saleFormManager.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const queryData = useQuery();
-    const formType = queryData?.['modal-type'] ?? 'get';
-    const formName = 'sales';
-    const formDefaultData = {
-        "date": queryData?.["date"] ?? "",
-        "itemCode": queryData?.["itemCode"] ?? "",
-        "count": queryData?.["count"] ?? "",
-        "price": queryData?.["price"] ?? "",
-        "description": queryData?.["description"] ?? "",
-    }
-    new FormManager('#dataForm', formType, formName, formDefaultData);
+    const formType = queryData?.['modal-type'];
+
+    // 데이터
+    const dataManager = new Data('sales');
+    const queryId = queryData?.id;
+    const defaultData = queryId ? dataManager.getDataById(queryId) : {};
+
+    new SaleFormManager('#dataForm', formType, dataManager, defaultData);
 });

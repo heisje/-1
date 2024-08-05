@@ -24,21 +24,21 @@
 
 					<ul class="header-input">
 						<li>
-							<label for="itemCode">품목코드</label>
+							<label for="id">품목코드</label>
 							<input
 								type="search"
-								id="itemCode"
-								name="itemCode"
+								id="id"
+								name="id"
 								class=""
 								placeholder="품목코드 검색"
 							/>
 						</li>
 						<li>
-							<label for="itemName">품목명</label>
+							<label for="name">품목명</label>
 							<input
 								type="search"
-								id="itemName"
-								name="itemName"
+								id="name"
+								name="name"
 								class=""
 								placeholder="품목명 검색"
 							/>
@@ -81,19 +81,7 @@
 					</tbody>
 				</table>
 
-				<div id="formButtons">
-					<button
-						class="primary-button openWindow"
-						data-href="itemForm.html"
-						data-query-modal-type="post"
-					>
-						신규
-					</button>
-					<!-- <button class="primary-button deleteSelectedButton">삭제</button>
-					<button class="primary-button">적용</button>
-					<button type="button" class="closeButton">닫기</button> -->
-					<!-- 닫기 버튼 수정 -->
-				</div>
+				<div id="formButtons"></div>
 			</form>
 		</main>
 		<script type="module" src="./itemSearch.js"></script>

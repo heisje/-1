@@ -1,18 +1,24 @@
 import { queryObjectToURL } from "../util/query.js";
-import { Data } from "../data/data.js";
 import { Modal } from "../modal/modal.js";
+import { Button } from "../components/Button.js";
 
 export class FormManager {
-    constructor(formSelector, formType = 'get', table, defaultData) {
+
+    constructor(formSelector, formType, dataManager, defaultData, pageSize = 10) {
         this.form = document.querySelector(formSelector);
         this.tbody = document.getElementById('table-body');
-        this.dataManager = new Data(table);
+        this.dataManager = dataManager; //new Data(table);
         this.currentPage = 1;
+        this.pageSize = pageSize;
         this.formType = formType;
         this.defaultData = defaultData; //useQuery(); // Get query parameters
 
+        this._loadSearchData = this._loadSearchData.bind(this);
+        this._getFormData = this._getFormData.bind(this);
+
         const headerText = this.form.querySelector("#modalTypeText");
         if (headerText) {  // headerText가 null이 아닌지 확인
+            // TODO: StaticText 객체화
             switch (this.formType) {
                 case 'get':
                     headerText.textContent = '조회';
@@ -26,9 +32,7 @@ export class FormManager {
             }
         }
 
-
-
-        console.log('initForm', this.form);
+        // console.log('initForm', this.form);
         if (this.form) {
             this.initForm();
         }
@@ -37,25 +41,11 @@ export class FormManager {
     initForm() {
         this._initFormButtons();
 
-        this.form.querySelectorAll(".onSaveButton").forEach(button => {
-            button.addEventListener('click', (event) => this._handleSave(event));
-        });
-        this.form.querySelectorAll(".onUpdateButton").forEach(button => {
-            button.addEventListener('click', (event) => this._handleUpdate(event));
-        });
+        // TODO 제출 분리
+        this.form.addEventListener('submit', () => { this._loadSearchData(1) });
 
         this.form.querySelectorAll(".openWindow").forEach(button => {
             button.addEventListener("click", (event) => this._handleOpenWindow(event));
-        });
-
-        this.form.querySelectorAll(".closeButton").forEach(button => {
-            button.addEventListener("click", () => window.close());
-        });
-        this.form.querySelectorAll(".resetButton").forEach(button => {
-            button.addEventListener("click", () => this._handleReset());
-        });
-        this.form.querySelectorAll(".deleteButton").forEach(button => {
-            button.addEventListener("click", () => this._handleDelete());
         });
 
         this.form.querySelectorAll("[data-pagi]").forEach(button => {
@@ -65,7 +55,7 @@ export class FormManager {
         this._handleReset(); // Initialize the form with query data
 
         try {
-            this._loadSearchData();
+            this._loadSearchData(1);
         } catch {
 
         }
@@ -75,19 +65,48 @@ export class FormManager {
         const formButtons = document.getElementById('formButtons');
         if (!formButtons) return;
 
+        if (this.formType === 'get') {
+            new Button({ text: '적용', classes: ['primary-button', 'onSetButton'], onClick: null, parent: formButtons });
+        }
+
         if (this.formType === 'post') {
-            this._addButton(formButtons, 'primary-button onSaveButton', '저장');
+            new Button({ text: '저장', classes: ['primary-button'], onClick: (event) => this._handleSave(event), parent: formButtons });
         }
 
-        // Add update and delete buttons if modal-type is update
         if (this.formType === 'update') {
-            this._addButton(formButtons, 'primary-button onUpdateButton', '변경');
-            this._addButton(formButtons, 'deleteButton', '삭제');
+            new Button({ text: '변경', classes: ['primary-button', 'onUpdateButton'], onClick: (event) => this._handleUpdate(event), parent: formButtons });
+            new Button({ text: '삭제', classes: ['deleteButton'], onClick: () => this._handleDelete(), parent: formButtons });
         }
 
-        // Add reset and close buttons
-        this._addButton(formButtons, 'resetButton', '다시작성');
-        this._addButton(formButtons, 'closeButton', '닫기', 'button');
+        if (this.formType === 'post' || this.formType === 'update') {
+            new Button({ text: '다시작성', classes: ['resetButton'], onClick: () => this._handleReset(), parent: formButtons });
+        }
+
+        if (this.formType) {
+            new Button({ text: '닫기', onClick: () => window.close(), parent: formButtons });
+        }
+
+    }
+
+    // message를 통해, 적용을 누른 데이터를 부모로 넘김
+    _setModalDataInParent() {
+
+    }
+
+    // window.open으로 연 popup으로 부터 message를 받아 데이터 새로고침
+    _reloadParentData() {
+
+    }
+
+    _getFormData() {
+        const formData = new FormData(this.form);
+        const dataObject = {};
+
+        formData.forEach((value, key) => {
+            dataObject[key] = value;
+        });
+
+        return dataObject;
     }
 
     _addButton(parent, className, text, type = 'button') {
@@ -103,7 +122,7 @@ export class FormManager {
 
         const dataObject = this._getFormData();
 
-        this.dataManager.appendData(dataObject);
+        this.dataManager.appendDataWithId(dataObject);
         alert('Data saved to LocalStorage');
 
         window.close();
@@ -114,25 +133,14 @@ export class FormManager {
 
         const dataObject = this._getFormData();
 
-        this.dataManager.updateData(this.defaultData, dataObject);
+        this.dataManager.updateData(this.defaultData?.id, dataObject);
         alert('Data updated in LocalStorage');
 
         window.close();
     }
 
-    _getFormData() {
-        const formData = new FormData(this.form);
-        const dataObject = {};
-
-        formData.forEach((value, key) => {
-            dataObject[key] = value;
-        });
-
-        return dataObject;
-    }
-
     _handleOpenWindow(event) {
-        console.log('_handleOpenWindow', event);
+        // console.log('_handleOpenWindow', event);
 
         const href = event.currentTarget.getAttribute("data-href");
         const openType = event.currentTarget.getAttribute("data-query-modal-type");
@@ -147,19 +155,27 @@ export class FormManager {
                 queryObject[key] = value;
             }
         });
+
+        const row = event.currentTarget.closest('tr');
+        if (row) {
+            const id = row.getAttribute('id');
+            queryObject['id'] = id;
+        }
+
         const url = queryObjectToURL(href, queryObject);
-        console.log(href);
+
         new Modal(url, openType);
     }
 
     _handleDelete() {
-        this.dataManager.removeExactData(this._getFormData());
+        this.dataManager.deleteDataById(this.defaultData?.id);
+        alert(`${this.defaultData?.id}가 삭제되었습니다.`)
         window.close();
     }
 
     _handleReset() {
         this.form.querySelectorAll('input').forEach(input => {
-            console.log(input.name, this.defaultData[input.name])
+            // console.log(input.name, this.defaultData[input.name])
             if (input.name && this.defaultData[input.name]) {
                 input.value = this.defaultData[input.name];
             } else {
@@ -180,7 +196,7 @@ export class FormManager {
         } else if (totalPages < this.currentPage + direction) {
             this.currentPage = totalPages
         }
-        console.log("페이지 이동", this.currentPage, totalPages);
+        // console.log("페이지 이동", this.currentPage, totalPages);
 
         this._loadSearchData(this.currentPage);
         document.getElementById("currentPage").textContent = this.currentPage;
@@ -189,43 +205,18 @@ export class FormManager {
     // 검색 조건에 따라 테이블 데이터 로드 함수
     _loadSearchData(pageNumber = 1) {
         const formObject = this._getFormData();
+
         const data = this.dataManager.paginationSearchData(formObject, pageNumber); // 검색된 데이터의 페이지네이션 결과 로드
 
         if (!this.tbody) return;
         this.tbody.innerHTML = ''; // 기존 데이터 삭제
 
-
         // 새 데이터 삽입
+        // console.log('데이터', data);
         this._rowMaker(this.tbody, data);
     }
 
     _rowMaker(parent, data) {
-        data.items.forEach(item => {
-            const row = document.createElement('tr');
-
-            let cells = '';
-            for (const key in this.defaultData) {
-                if (this.defaultData.hasOwnProperty(key)) {
-                    cells += `<td>${item[key] || ''}</td>`;
-                }
-            }
-
-            row.innerHTML = `
-                <td><input type="checkbox" name="row${item.itemCode}" /></td>
-                ${cells}
-                <td>
-                    <button
-                        class="openWindow"
-                        data-href="itemForm.html"
-                        data-query-modal-type="update"
-                        data-query-itemCode=${item.itemCode}
-                        data-query-itemName=${item.itemName}
-                    >
-                        수정
-                    </button>
-                </td>
-            `;
-            parent.appendChild(row);
-        });
+        // 자식에서 구현
     }
 }

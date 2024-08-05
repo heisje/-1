@@ -24,6 +24,7 @@ export class Modal {
     }
 
     _messageHandler = (event) => {
+        alert('message', event);
         if (event.origin !== window.location.origin) {
             return;
         }

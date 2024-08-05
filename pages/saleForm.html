@@ -20,7 +20,7 @@
 		<main>
 			<form id="dataForm" name="sales_input_form" onsubmit="return false;">
 				<div class="header-container">
-					<h1>판매등록</h1>
+					<h1>판매 <span id="modalTypeText"></span></h1>
 
 					<ul class="header-input">
 						<li>
@@ -46,8 +46,8 @@
 									></i>
 									<input
 										type="search"
-										id="itemCode"
-										name="itemCode"
+										id="item"
+										name="item"
 										placeholder="품목 검색"
 									/>
 								</div>
@@ -87,16 +87,7 @@
 						</li>
 					</ul>
 				</div>
-				<div id="formButtons">
-					<!-- <button id="sendMessage" class="primary-button" type="submit">
-						저장
-					</button>
-
-					<button type="button">삭제</button>
-					<button type="reset">다시작성</button>
-					<button type="button" class="closeButton">닫기</button>
-					닫기 버튼 수정 -->
-				</div>
+				<div id="formButtons"></div>
 			</form>
 		</main>
 
