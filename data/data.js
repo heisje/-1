@@ -59,7 +59,8 @@ export class Data {
 
         const index = existingData.findIndex(item => item.id === id);
         if (index !== -1) {
-            existingData[index] = { ...existingData[index], ...updatedData, id };
+            console.log(existingData, index);
+            existingData[index] = { ...updatedData };
             this.saveAllData(existingData);
         } else {
             throw new Error("Item not found");
@@ -103,24 +104,24 @@ export class Data {
         };
     }
 
-    searchData(query) {
-        // console.log(query, '로 검색 시작');
+    searchData(criteria) {
         const existingData = this.loadData();
         if (!Array.isArray(existingData)) {
             throw new Error("Existing data is not an array");
         }
-        const result = existingData.filter(item => {
-            return Object.keys(query).every(key => {
-                return !query[key] || item[key].includes(query[key]);
-            });
+        const { id, name } = criteria;
+
+        const result = existingData.filter(data => {
+            const matchesId = !id || data.id.includes(id);
+            const matchesName = !name || data.name.includes(name);
+
+            return matchesId && matchesName;
         });
 
-        // console.log("검색완료", result);
         return result;
     }
 
     paginationSearchData(query, currentPage = 1) {
-        // console.log('들어온다', query, currentPage);
         const searchData = this.searchData(query);
 
         const totalPage = Math.ceil(searchData.length / this.pageSize);
@@ -135,7 +136,53 @@ export class Data {
             totalPage: totalPage,
             items: searchData.slice(startIndex, endIndex)
         };
-        // console.log('result', result, searchData);
+        return result;
+    }
+
+    searchSalesData(criteria) {
+        const existingData = this.loadData();
+        if (!Array.isArray(existingData)) {
+            throw new Error("Existing data is not an array");
+        }
+
+        const { start_date, end_date, item, description } = criteria;
+
+        const result = existingData.filter(data => {
+            const itemArray = data.item.split(',').map(itemString => {
+                const [count, price] = itemString.split(':');
+                return { date: data.date, item: data.item, count, price, description: data.description, id: data.id };
+            });
+
+            return itemArray.some(itemData => {
+                const matchesStartDate = !start_date || new Date(itemData.date) >= new Date(start_date);
+                const matchesEndDate = !end_date || new Date(itemData.date) <= new Date(end_date);
+                const matchesItem = !item || itemData.item.includes(item);
+                const matchesDescription = !description || itemData.description.includes(description);
+
+                return matchesStartDate && matchesEndDate && matchesItem && matchesDescription;
+            });
+        });
+
+        return result;
+    }
+
+
+
+    paginationSalesSearchData(query, currentPage = 1) {
+        const searchData = this.searchSalesData(query);
+
+        const totalPage = Math.ceil(searchData.length / this.pageSize);
+        if (currentPage < 1) currentPage = 1;
+        if (currentPage > totalPage) currentPage = totalPage;
+
+        const startIndex = (currentPage - 1) * this.pageSize;
+        const endIndex = startIndex + this.pageSize;
+
+        const result = {
+            currentPage: currentPage,
+            totalPage: totalPage,
+            items: searchData.slice(startIndex, endIndex)
+        };
         return result;
     }
 

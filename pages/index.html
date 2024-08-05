@@ -49,6 +49,8 @@
 										class="openWindow fa-solid fa-magnifying-glass"
 										data-href="itemSearch.html"
 										data-query-modal-type="get"
+										data-query-get-count="3"
+										id="searchIcon"
 									></i>
 									<input
 										type="search"
@@ -63,16 +65,18 @@
 						</li>
 
 						<li>
-							<label for="note">적요</label>
+							<label for="description">적요</label>
 							<input
 								type="text"
-								id="note"
-								name="note"
+								id="description"
+								name="description"
 								placeholder="적요 입력"
 							/>
 						</li>
 						<li>
-							<button class="primary-button" type="submit">검색</button>
+							<button class="primary-button onSearchButton" type="submit">
+								검색
+							</button>
 						</li>
 					</ul>
 				</div>
@@ -86,11 +90,7 @@
 					<thead>
 						<tr>
 							<th>
-								<input
-									type="checkbox"
-									name="select_all"
-									onclick="selectAll(this)"
-								/>
+								<input type="checkbox" name="select_all" id="selectAll" />
 							</th>
 							<th>전표일자/번호</th>
 							<th>품목코드</th>
@@ -103,57 +103,10 @@
 					<tbody id="table-body" data-table="item">
 						<!-- Data rows will be inserted here -->
 					</tbody>
-					<!-- <tbody>
-						<tr>
-							<td><input type="checkbox" name="row1" /></td>
-							<td>2023-07-30-1</td>
-							<td>P001</td>
-							<td>Product 1</td>
-							<td>10</td>
-							<td>1000</td>
-							<td>Example note 1</td>
-						</tr>
-						<tr>
-							<td><input type="checkbox" name="row1" /></td>
-							<td>2023-07-30-1</td>
-							<td>P001</td>
-							<td>Product 1</td>
-							<td>10</td>
-							<td>1000</td>
-							<td>Example note 1</td>
-						</tr>
-						<tr>
-							<td><input type="checkbox" name="row1" /></td>
-							<td>2023-07-30-1</td>
-							<td>P001</td>
-							<td>Product 1</td>
-							<td>10</td>
-							<td>1000</td>
-							<td>Example note 1</td>
-						</tr>
-						<tr>
-							<td><input type="checkbox" name="row1" /></td>
-							<td>2023-07-30-1</td>
-							<td>P001</td>
-							<td>Product 1</td>
-							<td>10</td>
-							<td>1000</td>
-							<td>Example note 1</td>
-						</tr>
-						<tr>
-							<td><input type="checkbox" name="row1" /></td>
-							<td>2023-07-30-1</td>
-							<td>P001</td>
-							<td>Product 1</td>
-							<td>10</td>
-							<td>1000</td>
-							<td>Example note 1</td>
-						</tr>
-					</tbody> -->
 				</table>
 
 				<div id="formButtons">
-					<button>선택삭제</button>
+					<button class="deleteButton">선택삭제</button>
 				</div>
 			</form>
 		</main>

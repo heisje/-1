@@ -1,6 +1,6 @@
 import { useQuery } from '../customhook/useQuery.js';
 import { Data } from '../data/data.js';
-import { ItemFormManager } from '../manager/ItemFormManager.js';
+import { ItemForm } from '../manager/ItemForm.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const queryData = useQuery();
@@ -11,5 +11,5 @@ document.addEventListener('DOMContentLoaded', () => {
     const queryId = queryData?.id;
     const defaultData = queryId ? dataManager.getDataById(queryId) : {};
 
-    new ItemFormManager('#dataForm', formType, dataManager, defaultData);
+    new ItemForm('#dataForm', formType, dataManager, defaultData);
 });

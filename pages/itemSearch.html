@@ -14,7 +14,7 @@
 		<nav>
 			<a href="./itemSearch.html">품목조회</a>
 			<a href="./itemForm.html">품목등록</a>
-			<a href="../index.html">판매조회</a>
+			<a href="./index.html">판매조회</a>
 			<a href="./saleForm.html">판매입력</a>
 		</nav>
 		<main>
@@ -44,7 +44,9 @@
 							/>
 						</li>
 						<li>
-							<button class="primary-button" type="submit">검색</button>
+							<button class="primary-button onSearchButton" type="submit">
+								검색
+							</button>
 						</li>
 					</ul>
 				</div>
@@ -57,11 +59,7 @@
 					<thead>
 						<tr>
 							<th>
-								<input
-									type="checkbox"
-									name="select_all"
-									onclick="selectAll(this)"
-								/>
+								<input type="checkbox" name="select_all" id="selectAll" />
 							</th>
 							<th>품목코드</th>
 							<th>품목명</th>

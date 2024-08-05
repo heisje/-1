@@ -1,7 +1,7 @@
 import { useQuery } from "../customhook/useQuery.js";
 import { Data } from "../data/data.js";
-import { FormManager } from "../manager/FormManager.js";
-import { SaleFormManager } from "../manager/saleFormManager.js";
+import { Form } from "../manager/Form.js";
+import { SaleForm } from "../manager/SaleForm.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     const queryData = useQuery();
@@ -12,7 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const queryId = queryData?.id;
     const defaultData = queryId ? dataManager.getDataById(queryId) : {};
 
-    new SaleFormManager('#dataForm', formType, dataManager, defaultData);
+
+    new SaleForm('#dataForm', formType, dataManager, defaultData);
 });
 
 

@@ -1,5 +1,8 @@
 export class Button {
-    constructor({ text = 'Button', classes = [], onClick = null, parent = document.body } = {}) {
+    constructor({ text = 'Button',
+        classes = [],
+        onClick = null,
+        parent = document.body } = {}) {
         // Create the button element
         this.button = document.createElement('button');
         this.button.textContent = text;
@@ -7,7 +10,6 @@ export class Button {
         if (classes.length > 0) {
             this.button.classList.add(...classes);
         }
-
 
         if (onClick) {
             this.button.addEventListener('click', onClick);
