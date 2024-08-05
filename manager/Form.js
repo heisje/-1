@@ -9,17 +9,17 @@ export class Form {
     constructor(formSelector, formType, dataManager, defaultData, pageSize = 10) {
         this.form = document.querySelector(formSelector);
         this.tbody = document.getElementById('table-body');
-        this.dataManager = dataManager; //new Data(table);
-        this.currentPage = 1;
-        this.pageSize = pageSize;
-        this.formType = formType;
-        this.defaultData = defaultData; //useQuery(); // Get query parameters
-
+        this.dataManager = dataManager;     // 데이터 관리용 클래스
+        this.currentPage = 1;               // 현재 페이지
+        this.pageSize = pageSize;           // 페이지네이션 최대 사이즈
+        this.formType = formType;           // 타입별 버튼 부착용
+        this.defaultData = defaultData;     // 초기데이터
 
         this._loadSearchData = this._loadSearchData.bind(this);
         this._getFormData = this._getFormData.bind(this);
 
         const headerText = this.form.querySelector("#modalTypeText");
+
         if (headerText) {  // headerText가 null이 아닌지 확인
             // TODO: StaticText 객체화
             switch (this.formType) {
@@ -31,17 +31,23 @@ export class Form {
                     break;
                 case 'update':
                     headerText.textContent = '수정';
+                    const date = this.form.querySelector("#date");
+                    if (date) {  // headerText가 null이 아닌지 확인
+                        date.setAttribute('readonly', true);
+                        date.addEventListener('keydown', (event) => {
+                            event.preventDefault();
+                        });
+                    }
                     break;
             }
         }
-
-        // console.log('initForm', this.form);
         if (this.form) {
-            this.initForm();
+            this._initForm();
         }
     }
 
-    initForm() {
+    // 폼의 형태에 맞춰서 버튼 부착
+    _initForm() {
         this._initFormButtons();
 
         this.form.querySelectorAll('.onSearchButton').forEach(button => {
@@ -75,24 +81,10 @@ export class Form {
         try {
             this._loadSearchData(this.currentPage);
 
-            // TODO 제출 분리
-            // this.form.addEventListener('submit', () => { this._loadSearchData(1) });
-            const searchInput = document.getElementById('item');
-            const searchIcon = document.getElementById('searchIcon');
-
-            if (searchInput && searchIcon) {
-                searchInput.addEventListener('focus', () => {
-                    searchIcon.click();
-                    document.activeElement.blur();
-                });
-            }
-
             const selectAllButton = this.form.querySelector('#selectAll');
 
             const query = useQuery();
-
             const selectCount = query?.['get-count'];
-            console.log(selectCount);
             if (selectCount >= 0) {
                 selectAllButton.style.display = 'none';
 
@@ -100,9 +92,8 @@ export class Form {
 
                 checkboxes.forEach(checkbox => {
                     checkbox.addEventListener('change', (event) => {
-                        console.log(event.target.checked);
                         const checkedCheckboxes = this.form.querySelectorAll('input[type="checkbox"]:checked');
-                        console.log(checkedCheckboxes.length, selectCount);
+
                         if (checkedCheckboxes.length > selectCount) {
                             event.target.checked = false;
 
@@ -121,19 +112,7 @@ export class Form {
                 });
             }
 
-            const date = this.form.querySelector("#date");
-            console.log(date);
-            if (date) {  // headerText가 null이 아닌지 확인
-                // TODO: StaticText 객체화
-                switch (this.formType) {
-                    case 'update':
-                        date.setAttribute('readonly', true);
-                        date.addEventListener('keydown', (event) => {
-                            event.preventDefault();
-                        });
-                        break;
-                }
-            }
+
         } catch {
 
         }
@@ -167,7 +146,6 @@ export class Form {
                         messageType: 'set-items',
                         ids: this._getSelectedRowIds(),
                     }
-                    console.log('메세지 전송', message);
                     window.opener.postMessage(message, window.location.origin);
                     window.close();
                 }, parent: formButtons
@@ -197,6 +175,7 @@ export class Form {
 
     }
 
+    // GET
     _getFormData() {
         const formData = new FormData(this.form);
         const dataObject = {};
@@ -208,14 +187,9 @@ export class Form {
         return dataObject;
     }
 
-    _addButton(parent, className, text, type = 'button') {
-        const button = document.createElement('button');
-        button.className = className;
-        button.innerText = text;
-        button.type = type;
-        parent.appendChild(button);
-    }
 
+
+    // POST
     _handleSave(event) {
         event.preventDefault();
 
@@ -232,6 +206,7 @@ export class Form {
         window.close();
     }
 
+    // UPDATE
     _handleUpdate(event) {
         event.preventDefault();
 
@@ -249,6 +224,15 @@ export class Form {
         window.close();
     }
 
+    // DELETE
+    _handleDelete = () => {
+        this.dataManager.deleteDataById(this.defaultData?.id);
+        alert(`${this.defaultData?.id}가 삭제되었습니다.`)
+        this._sendMessage({ messageType: 'reSearchData' });
+        window.close();
+    }
+
+    // OPEN NEW MODAL
     _handleOpenWindow(event) {
         const href = event.currentTarget.getAttribute("data-href");
         const openType = event.currentTarget.getAttribute("data-query-modal-type");
@@ -275,17 +259,9 @@ export class Form {
         new Modal(url, openType);
     }
 
-
-    _handleDelete = () => {
-        this.dataManager.deleteDataById(this.defaultData?.id);
-        alert(`${this.defaultData?.id}가 삭제되었습니다.`)
-        this._sendMessage({ messageType: 'reSearchData' });
-        window.close();
-    }
-
+    // FORM RESET
     _handleReset = () => {
         this.form.querySelectorAll('input').forEach(input => {
-            // console.log(input.name, this.defaultData[input.name])
             if (input.name && this.defaultData[input.name]) {
                 input.value = this.defaultData[input.name];
             } else {
@@ -294,6 +270,19 @@ export class Form {
         });
     }
 
+    // TABLE GET 
+    _loadSearchData(pageNumber = 1) {
+        const formObject = this._getFormData();
+
+        const data = this.dataManager.paginationSearchData(formObject, pageNumber); // 검색된 데이터의 페이지네이션 결과 로드
+
+        if (!this.tbody) return;
+        this.tbody.innerHTML = ''; // 기존 데이터 삭제
+
+        this._rowMaker(this.tbody, data);
+    }
+
+    // TABLE GET PAGINATION
     _handlePagination = (event) => {
         const direction = parseInt(event.currentTarget.getAttribute('data-pagi'), 10);
         const totalPages = Math.ceil(this.dataManager.loadData().length / this.dataManager.pageSize);
@@ -306,31 +295,19 @@ export class Form {
         } else if (totalPages < this.currentPage + direction) {
             this.currentPage = totalPages
         }
-        // console.log("페이지 이동", this.currentPage, totalPages);
 
         this._loadSearchData(this.currentPage);
         document.getElementById("currentPage").textContent = this.currentPage;
     }
 
-    // 검색 조건에 따라 테이블 데이터 로드 함수
-    _loadSearchData(pageNumber = 1) {
-        const formObject = this._getFormData();
 
-        const data = this.dataManager.paginationSearchData(formObject, pageNumber); // 검색된 데이터의 페이지네이션 결과 로드
 
-        if (!this.tbody) return;
-        this.tbody.innerHTML = ''; // 기존 데이터 삭제
-
-        // 새 데이터 삽입
-        // console.log('데이터', data);
-        this._rowMaker(this.tbody, data);
-    }
-
+    // CREATE ROW 자식컴포넌트에서 구현
     _rowMaker(parent, data) {
         // 자식에서 구현
     }
 
-    // 체크박스로 ID값을 구함
+    // TABLE GET ID
     _getSelectedRowIds() {
         const selectedIds = [];
         const checkboxes = document.querySelectorAll('#table-body input[type="checkbox"]:checked');
@@ -345,11 +322,12 @@ export class Form {
         return selectedIds;
     }
 
+    // MESSAGE
     _sendMessage(message = { messageType: 'reSearchData' }) {
-        console.log('메세지 전송', message);
         window.opener.postMessage(message, window.location.origin);
     }
 
+    // Util
     _validateFormData(requiredKeys = []) {
         const formData = this._getFormData();
         for (let key of requiredKeys) {

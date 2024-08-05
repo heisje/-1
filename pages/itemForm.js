@@ -10,5 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const dataManager = new Data('item');
     const queryId = queryData?.id;
     const defaultData = queryId ? dataManager.getDataById(queryId) : {};
+
     new ItemForm('#dataForm', formType, dataManager, defaultData);
 });
