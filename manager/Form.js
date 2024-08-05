@@ -15,8 +15,8 @@ export class Form {
         this.formType = formType;           // 타입별 버튼 부착용
         this.defaultData = defaultData;     // 초기데이터
 
-        this._loadSearchData = this._loadSearchData.bind(this);
-        this._getFormData = this._getFormData.bind(this);
+        // this._loadSearchData = this._loadSearchData.bind(this);
+        // this._getFormData = this._getFormData.bind(this);
 
         const headerText = this.form.querySelector("#modalTypeText");
 
@@ -161,7 +161,7 @@ export class Form {
         }
 
         if (this.formType === 'update') {
-            new Button({ text: '변경', classes: ['primary-button', 'onUpdateButton'], onClick: (event) => this._handleUpdate(event), parent: formButtons });
+            new Button({ text: '변경', classes: ['primary-button', 'onUpdateButton'], onClick: (event) => { this._handleUpdate(event) }, parent: formButtons });
             new Button({ text: '삭제', onClick: () => this._handleDelete(), parent: formButtons });
         }
 
@@ -179,7 +179,6 @@ export class Form {
     _getFormData() {
         const formData = new FormData(this.form);
         const dataObject = {};
-
         formData.forEach((value, key) => {
             dataObject[key] = value;
         });
@@ -216,7 +215,9 @@ export class Form {
         }
 
         const dataObject = this._getFormData();
-        dataObject.id = this.defaultData?.id;
+        if (!dataObject.id) {
+            this.defaultData?.id;
+        }
         this.dataManager.updateData(this.defaultData?.id, dataObject);
 
         alert('Data updated in LocalStorage');

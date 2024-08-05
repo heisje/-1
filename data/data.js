@@ -54,6 +54,7 @@ export class Data {
             throw new Error("Existing data is not an array");
         }
 
+        console.log(id, updatedData);
         const index = existingData.findIndex(item => item.id === id);
         if (index !== -1) {
             existingData[index] = { ...updatedData };
