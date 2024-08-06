@@ -316,7 +316,7 @@ export class Form {
         const totalPages = Math.ceil(this.dataManager.loadData().length / this.dataManager.pageSize);
 
         if (direction < 1) {
-            this.currentPage = direction; // 페이지 번호가 1보다 작아지지 않도록 방지
+            this.currentPage = 1; // 페이지 번호가 1보다 작아지지 않도록 방지
         }
         else if (direction <= totalPages) {
             this.currentPage = direction;
