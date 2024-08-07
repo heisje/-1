@@ -1,10 +1,11 @@
 import { Button } from '../components/Button.js';
+import { Pagination } from '../components/Pagination.js';
 import { CheckBox, OpenButton, Cell } from '../components/td.js';
 import { Data } from '../data/data.js';
 import { Form } from './Form.js';
 
 export class SaleForm extends Form {
-    constructor(formSelector, formType, dataManager, defaultData, pageSize = 10) {
+    constructor(formSelector, formType, dataManager, defaultData, pageSize = 10, tableManager) {
         super(formSelector, formType, dataManager, defaultData, pageSize);
         this.requiredKeys = ['date', 'item', 'count', 'price'];
     }
@@ -40,6 +41,12 @@ export class SaleForm extends Form {
         // 기존 데이터 삭제
         if (!this.tbody) return;
         this.tbody.innerHTML = '';
+        Pagination(data?.currentPage, data?.totalPage,
+            (index) => {
+                console.log(index.target.textContent);
+                this._handleIndexPagination(index.target.textContent);
+            }
+        );
 
         this._rowMaker(this.tbody, data);
     }

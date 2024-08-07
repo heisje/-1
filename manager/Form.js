@@ -3,6 +3,7 @@ import { Modal } from "../modal/modal.js";
 import { Button } from "../components/Button.js";
 import { Data } from "../data/data.js";
 import { useQuery } from "../customhook/useQuery.js";
+import { Pagination } from "../components/Pagination.js";
 
 export class Form {
 
@@ -113,8 +114,8 @@ export class Form {
             }
 
 
-        } catch {
-
+        } catch (e) {
+            console.log(e);
         }
     }
 
@@ -280,6 +281,14 @@ export class Form {
         if (!this.tbody) return;
         this.tbody.innerHTML = ''; // 기존 데이터 삭제
 
+        const a = this._handleIndexPagination;
+        Pagination(data?.currentPage, data?.totalPage,
+            (index) => {
+                console.log(index.target.textContent);
+                this._handleIndexPagination(index.target.textContent);
+            }
+        );
+
         this._rowMaker(this.tbody, data);
     }
 
@@ -294,6 +303,24 @@ export class Form {
         else if (this.currentPage + direction <= totalPages) {
             this.currentPage += direction;
         } else if (totalPages < this.currentPage + direction) {
+            this.currentPage = totalPages
+        }
+
+        this._loadSearchData(this.currentPage);
+        document.getElementById("currentPage").textContent = this.currentPage;
+    }
+
+    // TABLE GET PAGINATION
+    _handleIndexPagination = (index) => {
+        const direction = parseInt(index);
+        const totalPages = Math.ceil(this.dataManager.loadData().length / this.dataManager.pageSize);
+
+        if (direction < 1) {
+            this.currentPage = 1; // 페이지 번호가 1보다 작아지지 않도록 방지
+        }
+        else if (direction <= totalPages) {
+            this.currentPage = direction;
+        } else if (totalPages < direction) {
             this.currentPage = totalPages
         }
 

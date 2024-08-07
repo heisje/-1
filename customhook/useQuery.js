@@ -6,6 +6,7 @@ export const useQuery = (() => {
         if (cachedParams) {
             return cachedParams;
         }
+        console.log('query');
 
         const queryString = window.location.search.substring(1);
         const params = {};
