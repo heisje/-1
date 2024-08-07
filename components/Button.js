@@ -2,13 +2,18 @@ export class Button {
     constructor({ text = 'Button',
         classes = [],
         onClick = null,
-        parent = document.body } = {}) {
-        // Create the button element
+        parent = document.body, attributes = [] } = {}) {
         this.button = document.createElement('button');
         this.button.textContent = text;
 
         if (classes.length > 0) {
             this.button.classList.add(...classes);
+        }
+
+        if (attributes) {
+            attributes.forEach(({ qualifiedName, value }) => {
+                this.button.setAttribute(qualifiedName, value);
+            })
         }
 
         if (onClick) {

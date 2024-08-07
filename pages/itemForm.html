@@ -20,6 +20,7 @@
 		</nav>
 		<main>
 			<form id="dataForm" name="item_register_form" onsubmit="return false;">
+				<input type="hidden" id="id" name="id" />
 				<div class="header-container">
 					<h1>품목 <span id="modalTypeText"></span></h1>
 					<ul class="header-input">
@@ -42,6 +43,10 @@
 								class=""
 								placeholder="품목명 입력"
 							/>
+						</li>
+						<li>
+							<label for="price">단가</label>
+							<input type="text" name="price" placeholder="단가" />
 						</li>
 					</ul>
 				</div>

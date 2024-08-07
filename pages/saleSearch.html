@@ -20,6 +20,7 @@
 		</nav>
 		<main>
 			<form id="dataForm" name="sales_search_form" onsubmit="return false;">
+				<input type="hidden" id="id" name="id" />
 				<div class="header-container">
 					<h1>판매 <span id="modalTypeText"></span></h1>
 
@@ -43,7 +44,7 @@
 							</div>
 						</li>
 						<li>
-							<label for="item">품목</label>
+							<label>품목</label>
 							<div class="search-input-container">
 								<div class="search-input">
 									<i
@@ -53,15 +54,19 @@
 										data-query-get-count="3"
 										id="searchIcon"
 									></i>
+									<div id="search-items"></div>
 									<input
+										type="text"
+										id="fake-item-input"
+										placeholder="품목 검색"
+									/>
+									<!-- <input
 										type="search"
 										id="item"
 										name="item"
 										placeholder="품목 검색"
-									/>
+									/> -->
 								</div>
-
-								<div id="search-items"></div>
 							</div>
 						</li>
 

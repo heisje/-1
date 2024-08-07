@@ -1,3 +1,19 @@
+export function Td({ children, text, attributes = [], parent = document.body }) {
+    const td = document.createElement('td');
+
+    if (children) { td.appendChild(children); };
+    if (text) { td.textContent = text };
+    if (attributes) {
+        attributes.forEach(({ qualifiedName, value }) => {
+            td.setAttribute(qualifiedName, value);
+        })
+    }
+
+    parent.appendChild(td);
+    return td;
+}
+
+
 function Cell(text) {
     const cell = document.createElement('td');
     cell.textContent = text;

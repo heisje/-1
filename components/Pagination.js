@@ -24,7 +24,9 @@ export function Pagination(currentPage, totalPages, onClickEvent) {
         // li.addEventListener('click', () => {
         //     Pagination(i, totalPages);
         // });
+
         const button = new Button({
+            classes: currentPage === i ? ['active'] : [],
             text: i,
             parent: pagination,
             onClick: onClickEvent

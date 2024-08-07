@@ -32,7 +32,7 @@ export class Data {
 
     // POST
     appendDataWithId(item) {
-        if (!item.id) {
+        if (!item.id || item.id === '') {
             item.id = this.generateUUID();
         }
 
@@ -54,9 +54,9 @@ export class Data {
             throw new Error("Existing data is not an array");
         }
 
-        console.log(id, updatedData);
         const index = existingData.findIndex(item => item.id === id);
         if (index !== -1) {
+            updatedData.id = id;
             existingData[index] = { ...updatedData };
             this.saveAllData(existingData);
         } else {
@@ -75,27 +75,6 @@ export class Data {
         this.saveAllData(existingData);
     }
 
-    // GET
-    // paginationLoadData(currentPage) {
-    //     const existingData = this.loadData();
-    //     if (!Array.isArray(existingData)) {
-    //         throw new Error("Existing data is not an array");
-    //     }
-
-    //     const totalPage = Math.ceil(existingData.length / this.pageSize);
-    //     if (currentPage < 1) currentPage = 1;
-    //     if (currentPage > totalPage) currentPage = totalPage;
-
-    //     const startIndex = (currentPage - 1) * this.pageSize;
-    //     const endIndex = startIndex + this.pageSize;
-
-    //     return {
-    //         currentPage: currentPage,
-    //         totalPage: totalPage,
-    //         items: existingData.slice(startIndex, endIndex)
-    //     };
-    // }
-
     searchData(criteria) {
         const existingData = this.loadData();
         if (!Array.isArray(existingData)) {
@@ -113,10 +92,8 @@ export class Data {
         return result;
     }
 
-    paginationSearchData(query, currentPage = 1) {
-        const searchData = this.searchData(query);
-
-        const totalPage = Math.ceil(searchData.length / this.pageSize);
+    pagintionedData(totalData, currentPage = 1) {
+        const totalPage = Math.ceil(totalData.length / this.pageSize);
         if (currentPage < 1) currentPage = 1;
         if (currentPage > totalPage) currentPage = totalPage;
 
@@ -126,7 +103,7 @@ export class Data {
         const result = {
             currentPage: currentPage,
             totalPage: totalPage,
-            items: searchData.slice(startIndex, endIndex)
+            items: totalData.slice(startIndex, endIndex)
         };
         return result;
     }
@@ -137,46 +114,43 @@ export class Data {
             throw new Error("Existing data is not an array");
         }
 
-        const { start_date, end_date, item, description } = criteria;
-
+        const { start_date, end_date, itemIds, description } = criteria;
+        console.log('criteria', criteria);
         const result = existingData.filter(data => {
             const itemArray = data.item.split(',').map(itemString => {
                 const [count, price] = itemString.split(':');
                 return { date: data.date, item: data.item, count, price, description: data.description, id: data.id };
             });
-
+            // data.item.map(itemId => {
+            //     return { date: data.date, item: data.item, count, price, description: data.description, id: data.id }
+            // })
             return itemArray.some(itemData => {
                 const matchesStartDate = !start_date || new Date(itemData.date) >= new Date(start_date);
                 const matchesEndDate = !end_date || new Date(itemData.date) <= new Date(end_date);
-                const matchesItem = !item || itemData.item.includes(item);
+                const matchesItem = !itemIds || itemData.item.includes(itemIds);
                 const matchesDescription = !description || itemData.description.includes(description);
 
                 return matchesStartDate && matchesEndDate && matchesItem && matchesDescription;
             });
+
+            // if (typeof data.item === Array){
+            //     const itemArray = data.item.split(',').map(itemString => {
+            //         const [count, price] = itemString.split(':');
+            //         return { date: data.date, item: data.item, count, price, description: data.description, id: data.id };
+            //     });
+            //     return itemArray.some(itemData => {
+            //         const matchesStartDate = !start_date || new Date(itemData.date) >= new Date(start_date);
+            //         const matchesEndDate = !end_date || new Date(itemData.date) <= new Date(end_date);
+            //         const matchesItem = !itemIds || itemData.item.includes(itemIds);
+            //         const matchesDescription = !description || itemData.description.includes(description);
+
+            //         return matchesStartDate && matchesEndDate && matchesItem && matchesDescription;
+            //     });
+            // }
+
+
         });
 
         return result;
     }
-
-
-
-    paginationSalesSearchData(query, currentPage = 1) {
-        const searchData = this.searchSalesData(query);
-
-        const totalPage = Math.ceil(searchData.length / this.pageSize);
-        if (currentPage < 1) currentPage = 1;
-        if (currentPage > totalPage) currentPage = totalPage;
-
-        const startIndex = (currentPage - 1) * this.pageSize;
-        const endIndex = startIndex + this.pageSize;
-
-        const result = {
-            currentPage: currentPage,
-            totalPage: totalPage,
-            items: searchData.slice(startIndex, endIndex)
-        };
-        return result;
-    }
-
-
 }

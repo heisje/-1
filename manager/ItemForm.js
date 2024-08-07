@@ -1,5 +1,5 @@
 import { Button } from '../components/Button.js';
-import { CheckBox, OpenButton, Cell } from '../components/td.js';
+import { CheckBox, OpenButton, Cell, Td } from '../components/Td.js';
 import { Form } from './Form.js';
 
 export class ItemForm extends Form {
@@ -36,20 +36,35 @@ export class ItemForm extends Form {
                     const message = {
                         // TODO: 메세지 타입 분할
                         messageType: 'set-items',
-                        ids: [item?.id],
+                        items: [this.currentMapData.get(item?.id)],
+                        ids: item?.id,
                     }
+
                     window.opener.postMessage(message, window.location.origin);
                     window.close();
                 }, parent: celltd
             });
             row.appendChild(celltd);
-            row.appendChild(Cell(item?.name ?? ''));
+            Td({
+                text: item?.name ?? '',
+                parent: row
+            });
 
-            const cell = document.createElement('td');
             const UpdateButton = OpenButton('수정', 'itemForm.html')
             UpdateButton.addEventListener('click', this._handleOpenWindow);
-            cell.appendChild(UpdateButton);
-            row.appendChild(cell);
+
+            Td({
+                text: item?.price ?? '',
+                parent: row,
+                attributes: [{ qualifiedName: "price", value: item?.price }]
+            });
+
+            Td({
+                children: UpdateButton,
+                parent: row,
+                attributes: [{ qualifiedName: "name", value: item?.name }]
+            });
+
 
             parent.appendChild(row);
         });

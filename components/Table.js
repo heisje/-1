@@ -34,18 +34,3 @@ class Tr {
         parent.appendChild(this.tr);
     }
 }
-
-class Td {
-    constructor({ children, text, attributes = [], parent = document.body }) {
-        this.td = document.createElement('td');
-        if (children) { this.td.appendChild(children); };
-        if (text) { this.td.textContent = text };
-        if (attributes) {
-            attributes.forEach(({ qualifiedName, value }) => {
-                this.td.setAttribute(qualifiedName, value);
-            })
-        }
-
-        parent.appendChild(this.td);
-    }
-}

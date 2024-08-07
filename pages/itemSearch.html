@@ -20,6 +20,7 @@
 		</nav>
 		<main>
 			<form id="dataForm" name="item_search_form" onsubmit="return false;">
+				<input type="hidden" id="id" name="id" />
 				<div class="header-container">
 					<h1>품목 <span id="modalTypeText"></span></h1>
 
@@ -45,6 +46,10 @@
 							/>
 						</li>
 						<li>
+							<label for="price">단가</label>
+							<input type="search" name="price" placeholder="단가 검색" />
+						</li>
+						<li>
 							<button class="primary-button onSearchButton" type="submit">
 								검색
 							</button>
@@ -64,6 +69,7 @@
 							</th>
 							<th>품목코드</th>
 							<th>품목명</th>
+							<th>단가</th>
 							<th>
 								<!-- <button
 								class="openWindow"

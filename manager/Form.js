@@ -4,10 +4,11 @@ import { Button } from "../components/Button.js";
 import { Data } from "../data/data.js";
 import { useQuery } from "../customhook/useQuery.js";
 import { Pagination } from "../components/Pagination.js";
+import { FuncButton } from "../components/FunButton.js";
 
 export class Form {
 
-    constructor(formSelector, formType, dataManager, defaultData, pageSize = 10) {
+    constructor(formSelector, formType, dataManager = new Data(), defaultData, pageSize = 10) {
         this.form = document.querySelector(formSelector);
         this.tbody = document.getElementById('table-body');
         this.dataManager = dataManager;     // 데이터 관리용 클래스
@@ -16,8 +17,13 @@ export class Form {
         this.formType = formType;           // 타입별 버튼 부착용
         this.defaultData = defaultData;     // 초기데이터
 
-        // this._loadSearchData = this._loadSearchData.bind(this);
-        // this._getFormData = this._getFormData.bind(this);
+        // 현재 데이터
+        // 현재 데이터를 저장한 이유: 잦은 참조가 필요하다. 
+        // html에 data-로 데이터를 저장할 수는 있지만, 잦은 DOM API호출은 성능상 이점이 없다 생각된다. 
+        //    // 그래서 ID를 ROW마다 참조해두고, 현재데이터에서 뽑아 쓰는 방식으로 구현
+        //    // Index참조와 Hash참조가 필요하기 때매 Map으로 구현
+        // TODO: 데이터 참조 시작점을 이 객체로 변경
+        this.currentMapData = defaultData;     // 현재 데이터
 
         const headerText = this.form.querySelector("#modalTypeText");
 
@@ -72,7 +78,20 @@ export class Form {
 
         window.addEventListener("message", (event) => {
             if (event.data?.messageType === 'set-items') {
-                document.getElementById('item').value = event?.data?.ids;
+                const container = document.getElementById('search-items');
+                event?.data?.items.forEach((item) => {
+                    const button = FuncButton({
+                        text: `${item?.id}(${item?.name})`, parent: container,
+                        attributes: [{ qualifiedName: 'data-id', value: item?.id }],
+                    });
+                    const itemInput = document.getElementById('item');
+                    if (itemInput) {
+                        itemInput.value = event?.data?.items?.[0]?.id
+                    }
+                    button.addEventListener('click', () => { button.remove() });
+                })
+
+                // document.getElementById('item').value = event?.data?.ids;
             }
             if (event.data?.messageType === 'reSearchData') {
                 this._loadSearchData(this.currentPage);
@@ -142,9 +161,12 @@ export class Form {
                         alert('체크된 항목이 없습니다.');
                         return;
                     }
+                    const ids = this._getSelectedRowIds();
+                    const items = ids.map((id) => this.currentMapData.get(id));
                     const message = {
                         // TODO: 메세지 타입 분할
                         messageType: 'set-items',
+                        items,
                         ids: this._getSelectedRowIds(),
                     }
                     window.opener.postMessage(message, window.location.origin);
@@ -178,6 +200,7 @@ export class Form {
 
     // GET
     _getFormData() {
+        // TODO : button의 data-id를 다 가져와야함 
         const formData = new FormData(this.form);
         const dataObject = {};
         formData.forEach((value, key) => {
@@ -193,8 +216,9 @@ export class Form {
     _handleSave(event) {
         event.preventDefault();
 
-        if (!this._validateFormData(this.requiredKeys)) {
-            alert('필드를 채워주세요.');
+        const key = this._validateFormData(this.requiredKeys);
+        if (key != true) {
+            alert(`${key}를 채워주세요.`);
             return;
         }
 
@@ -210,8 +234,9 @@ export class Form {
     _handleUpdate(event) {
         event.preventDefault();
 
-        if (!this._validateFormData(this.requiredKeys)) {
-            alert('필드를 채워주세요.');
+        const key = this._validateFormData(this.requiredKeys);
+        if (key != true) {
+            alert(`${key}를 채워주세요.`);
             return;
         }
 
@@ -272,25 +297,37 @@ export class Form {
         });
     }
 
-    // TABLE GET 
+    // TABLE GET - 주로 마지막에 실행됨
     _loadSearchData(pageNumber = 1) {
         const formObject = this._getFormData();
 
-        const data = this.dataManager.paginationSearchData(formObject, pageNumber); // 검색된 데이터의 페이지네이션 결과 로드
+        const data = this.dataManager.searchData(formObject);
+        const pagintionedData = this.dataManager.pagintionedData(data, pageNumber);
 
         if (!this.tbody) return;
         this.tbody.innerHTML = ''; // 기존 데이터 삭제
 
-        const a = this._handleIndexPagination;
-        Pagination(data?.currentPage, data?.totalPage,
+        Pagination(pagintionedData?.currentPage, pagintionedData?.totalPage,
             (index) => {
                 console.log(index.target.textContent);
                 this._handleIndexPagination(index.target.textContent);
             }
         );
 
-        this._rowMaker(this.tbody, data);
+        this._updateCurrentMapData(pagintionedData?.items);
+        this._rowMaker(this.tbody, pagintionedData);
     }
+
+    // 상태변경 = Save Current Rows Data,  using MAP
+    // TODO : DATA 클래스로 넘기기
+    _updateCurrentMapData(data = []) {
+        const currentDataObjcet = new Map();
+        data.forEach((item) => {
+            currentDataObjcet.set(item?.id, { ...item });
+        })
+        this.currentMapData = currentDataObjcet;
+    }
+
 
     // TABLE GET PAGINATION
     _handlePagination = (event) => {
@@ -360,7 +397,7 @@ export class Form {
         const formData = this._getFormData();
         for (let key of requiredKeys) {
             if (formData[key] === undefined || formData[key] === null || formData[key] === '') {
-                return false;
+                return key;
             }
         }
         return true;
