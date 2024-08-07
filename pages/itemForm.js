@@ -1,3 +1,4 @@
+import { TableManager } from '../components/Table.js';
 import { useQuery } from '../customhook/useQuery.js';
 import { Data } from '../data/data.js';
 import { ItemForm } from '../manager/ItemForm.js';
@@ -11,5 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const queryId = queryData?.id;
     const defaultData = queryId ? dataManager.getDataById(queryId) : {};
 
-    new ItemForm('#dataForm', formType, dataManager, defaultData);
+    const tableManager = new TableManager({ columns: ['id', 'name'] });
+    new ItemForm('#dataForm', formType, dataManager, defaultData, 10, tableManager);
 });

@@ -12,15 +12,16 @@
 	</head>
 	<body>
 		<nav>
-			<a href="./itemSearch.html">품목조회</a>
-			<a href="./itemForm.html">품목등록</a>
-			<a href="./index.html">판매조회</a>
-			<a href="./saleForm.html">판매입력</a>
+			<a href="../index.html">메인페이지</a>
+			<a href="itemSearch.html">품목조회</a>
+			<!-- <a href="itemForm.html">품목등록</a> -->
+			<a href="saleSearch.html">판매조회</a>
+			<!-- <a href="saleForm.html">판매입력</a> -->
 		</nav>
 		<main>
 			<form id="dataForm" name="sales_search_form" onsubmit="return false;">
 				<div class="header-container">
-					<h1>판매조회</h1>
+					<h1>판매 <span id="modalTypeText"></span></h1>
 
 					<ul class="header-input">
 						<li>
@@ -111,6 +112,9 @@
 			</form>
 		</main>
 		<div id="message"></div>
-		<script type="module" src="index.js"></script>
+		<table class="list-table2">
+			<tbody id="table-body2" data-table="item"></tbody>
+		</table>
+		<script type="module" src="saleSearch.js"></script>
 	</body>
 </html>
