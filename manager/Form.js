@@ -5,6 +5,7 @@ import { Data } from "../data/data.js";
 import { useQuery } from "../customhook/useQuery.js";
 import { Pagination } from "../components/Pagination.js";
 import { FuncButton } from "../components/FunButton.js";
+import { CheckTableManager } from "./CheckTableManager.js";
 
 export class Form {
 
@@ -76,66 +77,28 @@ export class Form {
 
         this._handleReset(); // Initialize the form with query data
 
-        window.addEventListener("message", (event) => {
-            if (event.data?.messageType === 'set-items') {
-                const container = document.getElementById('search-items');
-                event?.data?.items.forEach((item) => {
-                    const button = FuncButton({
-                        text: `${item?.id}(${item?.name})`, parent: container,
-                        attributes: [{ qualifiedName: 'data-id', value: item?.id }],
-                    });
-                    const itemInput = document.getElementById('item');
-                    if (itemInput) {
-                        itemInput.value = event?.data?.items?.[0]?.id
-                    }
-                    button.addEventListener('click', () => { button.remove() });
-                })
 
-                // document.getElementById('item').value = event?.data?.ids;
-            }
-            if (event.data?.messageType === 'reSearchData') {
-                this._loadSearchData(this.currentPage);
-            }
-        });
+        this._virtual_listenMessage();
 
         try {
             this._loadSearchData(this.currentPage);
 
-            const selectAllButton = this.form.querySelector('#selectAll');
-
-            const query = useQuery();
-            const selectCount = query?.['get-count'];
-            if (selectCount >= 0) {
-                selectAllButton.style.display = 'none';
-
-                const checkboxes = this.form.querySelectorAll('input[type="checkbox"]');
-
-                checkboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', (event) => {
-                        const checkedCheckboxes = this.form.querySelectorAll('input[type="checkbox"]:checked');
-
-                        if (checkedCheckboxes.length > selectCount) {
-                            event.target.checked = false;
-
-                            alert(`최대 ${selectCount}개 항목만 선택할 수 있습니다.`);
-                        }
-                    });
-                });
-            }
-
-            if (selectAllButton) {
-                selectAllButton.addEventListener("click", function (event) {
-                    const checkboxes = this.form.querySelectorAll('tbody input[type="checkbox"]');
-                    checkboxes.forEach(checkbox => {
-                        checkbox.checked = event.target.checked;
-                    });
-                });
-            }
+            new CheckTableManager();
 
 
         } catch (e) {
             console.log(e);
         }
+    }
+
+    // 이벤트 송신부. override사용중
+    _virtual_listenMessage() {
+        window.addEventListener("message", (event) => {
+            // 공통해당 부분.
+            if (event.data?.messageType === 'reSearchData') {
+                this._loadSearchData(this.currentPage);
+            }
+        });
     }
 
     _handleDeleteSelected() {
@@ -169,6 +132,8 @@ export class Form {
                         items,
                         ids: this._getSelectedRowIds(),
                     }
+
+
                     window.opener.postMessage(message, window.location.origin);
                     window.close();
                 }, parent: formButtons
@@ -241,6 +206,7 @@ export class Form {
         }
 
         const dataObject = this._getFormData();
+        console.log(dataObject.id, this.defaultData?.id);
         if (!dataObject.id) {
             this.defaultData?.id;
         }

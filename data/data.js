@@ -56,7 +56,10 @@ export class Data {
 
         const index = existingData.findIndex(item => item.id === id);
         if (index !== -1) {
-            updatedData.id = id;
+            // 아이디가 문제야 문제
+            if (!updatedData.id) {
+                updatedData.id = id;
+            }
             existingData[index] = { ...updatedData };
             this.saveAllData(existingData);
         } else {

@@ -1,4 +1,5 @@
 import { Button } from '../components/Button.js';
+import { FuncButton } from '../components/FunButton.js';
 import { Pagination } from '../components/Pagination.js';
 import { CheckBox, OpenButton, Cell } from '../components/Td.js';
 import { Data } from '../data/data.js';
@@ -34,6 +35,7 @@ export class SaleForm extends Form {
         const items = document.getElementById('search-items');
         if (fakeItemInput && items) {
             fakeItemInput.addEventListener('keydown', (event) => {
+                event.preventDefault();
                 // 백스페이스 키를 눌렀는지 확인합니다.
                 if (event.key === 'Backspace') {
                     // 커서가 input 요소의 맨 앞에 위치했는지 확인합니다.
@@ -52,7 +54,33 @@ export class SaleForm extends Form {
                 }
             });
         }
+    }
 
+    _virtual_listenMessage() {
+        super._virtual_listenMessage();
+        window.addEventListener("message", (event) => {
+            if (event.data?.messageType === 'set-items') {
+                const container = document.getElementById('search-items');
+                event?.data?.items.forEach((item) => {
+                    const button = FuncButton({
+                        text: `${item?.id}(${item?.name})`, parent: container,
+                        attributes: [{ qualifiedName: 'data-id', value: item?.id }],
+                        onClick: () => { button.remove() }
+                    });
+                    // button.addEventListener('click', () => { button.remove() });
+                    const itemInput = document.getElementById('item');
+                    if (itemInput) {
+                        itemInput.value = event?.data?.items?.[0]?.id
+                    }
+                    const priceInput = document.getElementById('price');
+                    if (priceInput) {
+                        priceInput.value = event?.data?.items?.[0]?.price
+                    }
+                })
+
+                // document.getElementById('item').value = event?.data?.ids;
+            }
+        });
     }
 
     // GET
@@ -78,19 +106,20 @@ export class SaleForm extends Form {
         const formObject = this._getFormData();
 
         const totalData = this.dataManager.searchSalesData(formObject); // 검색된 데이터의 페이지네이션 결과 로드
-        const data = this.dataManager.pagintionedData(totalData, pageNumber);
+        const pagintionedData = this.dataManager.pagintionedData(totalData, pageNumber);
 
         // 기존 데이터 삭제
         if (!this.tbody) return;
         this.tbody.innerHTML = '';
-        Pagination(data?.currentPage, data?.totalPage,
+        Pagination(pagintionedData?.currentPage, pagintionedData?.totalPage,
             (index) => {
-                console.log(index.target.textContent);
                 this._handleIndexPagination(index.target.textContent);
             }
         );
 
-        this._rowMaker(this.tbody, data);
+        this._updateCurrentMapData(pagintionedData?.items);
+        console.log('currentData', this.currentMapData);
+        this._rowMaker(this.tbody, pagintionedData);
     }
 
     // _loadSearchData 메서드 오버라이드
