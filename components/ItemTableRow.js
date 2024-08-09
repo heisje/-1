@@ -9,7 +9,6 @@ export function ItemTableRow({ parent, data, currentMapData }) {
     CheckBoxState.changeKeyState({ selectedIds: new Set() });
     const checkedCount = useQuery()?.['get-count'];
 
-
     data.items.forEach((item) => {
         const row = document.createElement('tr');
         row.setAttribute('id', item?.id); // id 할당
@@ -59,7 +58,7 @@ export function ItemTableRow({ parent, data, currentMapData }) {
             }, parent: celltd
         });
         row.appendChild(celltd);
-        Td({
+        new Td({
             text: item?.name ?? '',
             parent: row
         });
@@ -67,13 +66,13 @@ export function ItemTableRow({ parent, data, currentMapData }) {
         const UpdateButton = OpenButton('수정', 'itemForm.html')
         UpdateButton.addEventListener('click', handleOpenWindow);
 
-        Td({
+        new Td({
             text: item?.price ?? '',
             parent: row,
             attributes: [{ qualifiedName: "price", value: item?.price }]
         });
 
-        Td({
+        new Td({
             children: UpdateButton,
             parent: row,
             attributes: [{ qualifiedName: "name", value: item?.name }]

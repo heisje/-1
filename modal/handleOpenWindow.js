@@ -3,7 +3,7 @@
 import { queryObjectToURL } from "../util/query.js";
 import { Modal } from "./modal.js";
 
-// TODO : 분리
+// Window Open을 위해 데이터를 수집-모달로 전달하는 함수
 export const handleOpenWindow = (event) => {
     const href = event.currentTarget.getAttribute("data-href");
     const openType = event.currentTarget.getAttribute("data-query-modal-type");

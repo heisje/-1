@@ -1,7 +1,7 @@
 import { Data } from "../data/data.js";
 import { handleOpenWindow } from "../modal/handleOpenWindow.js";
 import { CCheckBox } from "./CheckBox.js";
-import { Cell, CheckBox, OpenButton } from "./Td.js";
+import { Cell, OpenButton } from "./Td.js";
 
 export async function SaleTableRow({ parent, data }) {
     for (const item of data.items) {

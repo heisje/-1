@@ -1,31 +1,15 @@
-export function Td({ children, text, attributes = [], parent = document.body }) {
-    const td = document.createElement('td');
+import { AbstractElement } from "./AbstractElement.js";
 
-    if (children) { td.appendChild(children); };
-    if (text) { td.textContent = text };
-    if (attributes) {
-        attributes.forEach(({ qualifiedName, value }) => {
-            td.setAttribute(qualifiedName, value);
-        })
+export class Td extends AbstractElement {
+    constructor(options) {
+        const td = document.createElement('td');
+        return super(td, options);
     }
-
-    parent.appendChild(td);
-    return td;
 }
-
 
 function Cell(text) {
     const cell = document.createElement('td');
     cell.textContent = text;
-    return cell;
-}
-
-function CheckBox(id) {
-    const cell = document.createElement('td');
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.name = `row-${id}`;
-    cell.appendChild(checkbox);
     return cell;
 }
 
@@ -38,4 +22,4 @@ function OpenButton(text, url) {
     return button;
 }
 
-export { Cell, CheckBox, OpenButton }
+export { Cell, OpenButton }

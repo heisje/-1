@@ -1,6 +1,5 @@
 import { Button } from '../components/Button.js';
 import { ItemTableRow } from '../components/ItemTableRow.js';
-import { CheckBox, OpenButton, Cell, Td } from '../components/Td.js';
 import { handleOpenWindow } from '../modal/handleOpenWindow.js';
 import { FormManager } from './FormManager.js';
 
@@ -14,9 +13,16 @@ export class ItemForm extends FormManager {
     // override
     _initFormButtons() {
         if (this.formType !== 'update' && this.formType !== 'post') {
-            const openWindowButton = new Button({ text: '신규', classes: ['primary-button', 'openWindow'], onClick: null, parent: formButtons });
-            openWindowButton.button.setAttribute('data-href', 'itemForm.html');
-            openWindowButton.button.setAttribute('data-query-modal-type', 'post');
+            new Button({
+                text: '신규',
+                classes: ['primary-button', 'openWindow'],
+                onClick: null,
+                parent: formButtons,
+                attributes: [
+                    { qualifiedName: 'data-href', value: 'itemForm.html' },
+                    { qualifiedName: 'data-query-modal-type', value: 'post' }
+                ]
+            });
         }
 
         super._initFormButtons();

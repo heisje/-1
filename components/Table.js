@@ -12,7 +12,7 @@ export class TableManager {
         const tr = new Tr({ setAttribute: { qualifiedName: 'id', value: data.id }, parent: this.tbody });
         data.forEach((item) => {
             this.columns.forEach((column) => {
-                const td = Td({ text: item?.[column], parent: tr.tr });
+                const td = new Td({ text: item?.[column], parent: tr.tr });
             });
         })
     }

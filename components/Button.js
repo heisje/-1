@@ -1,49 +1,8 @@
-export class Button {
-    constructor({ text = 'Button',
-        classes = [],
-        onClick = null,
-        parent = document.body, attributes = [] } = {}) {
-        this.button = document.createElement('button');
-        this.button.textContent = text;
+import { AbstractElement } from "./AbstractElement.js";
 
-        if (classes.length > 0) {
-            this.button.classList.add(...classes);
-        }
-
-        if (attributes) {
-            attributes.forEach(({ qualifiedName, value }) => {
-                this.button.setAttribute(qualifiedName, value);
-            })
-        }
-
-        if (onClick) {
-            this.button.addEventListener('click', onClick);
-        }
-
-        parent.appendChild(this.button);
-    }
-
-    setAttribute(key, value) {
-        this.button.setAttribute(key, value);
-    }
-
-    setText(text) {
-        this.button.textContent = text;
-    }
-
-    addClass(...classes) {
-        this.button.classList.add(...classes);
-    }
-
-    removeClass(...classes) {
-        this.button.classList.remove(...classes);
-    }
-
-    addEventListener(event, handler) {
-        this.button.addEventListener(event, handler);
-    }
-
-    removeEventListener(event, handler) {
-        this.button.removeEventListener(event, handler);
+export class Button extends AbstractElement {
+    constructor(options) {
+        const button = document.createElement("button");
+        return super(button, options);
     }
 }

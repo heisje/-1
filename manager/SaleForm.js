@@ -2,9 +2,6 @@ import { Button } from '../components/Button.js';
 import { FuncButton } from '../components/FunButton.js';
 import { Pagination } from '../components/Pagination.js';
 import { SaleTableRow } from '../components/SaleTableRow.js';
-import { CheckBox, OpenButton, Cell } from '../components/Td.js';
-import { Data } from '../data/data.js';
-import { handleOpenWindow } from '../modal/handleOpenWindow.js';
 import { arrayToMap } from '../util/arrayToMap.js';
 import { FormManager } from './FormManager.js';
 
@@ -13,13 +10,19 @@ export class SaleForm extends FormManager {
         super(formSelector, formType, dataManager, defaultData, pageSize);
         this.requiredKeys = ['date', 'item', 'count', 'price'];
     }
-
     // override
     _initFormButtons() {
         if (this.formType !== 'update' && this.formType !== 'post') {
-            const openWindowButton = new Button({ text: '신규', classes: ['primary-button', 'openWindow'], onClick: null, parent: formButtons });
-            openWindowButton.button.setAttribute('data-href', 'saleForm.html');
-            openWindowButton.button.setAttribute('data-query-modal-type', 'post');
+            new Button({
+                text: '신규',
+                classes: ['primary-button', 'openWindow'],
+                onClick: null,
+                parent: formButtons,
+                attributes: [
+                    { qualifiedName: 'data-href', value: 'saleForm.html' },
+                    { qualifiedName: 'data-query-modal-type', value: 'post' }
+                ]
+            });
         }
 
         super._initFormButtons();
@@ -46,7 +49,6 @@ export class SaleForm extends FormManager {
                         // search-items 안의 모든 버튼 요소를 가져옵니다.
                         const buttons = items.getElementsByTagName('button');
 
-                        // 버튼이 있을 경우 마지막 버튼을 제거합니다.
                         if (buttons.length > 0) {
                             items.removeChild(buttons[buttons.length - 1]);
                         }
@@ -63,26 +65,32 @@ export class SaleForm extends FormManager {
         super._virtual_listenMessage();
         window.addEventListener("message", (event) => {
             if (event.data?.messageType === 'set-items') {
-                const container = document.getElementById('search-items');
-                container.innerHTML = ''; // 기존 내용을 비웁니다.
-                event?.data?.items.forEach((item) => {
-                    const button = FuncButton({
-                        text: `${item?.id}(${item?.name})`, parent: container,
-                        attributes: [{ qualifiedName: 'data-id', value: item?.id }],
-                        onClick: () => { button.remove() }
-                    });
-                    // button.addEventListener('click', () => { button.remove() });
-                    const itemInput = document.getElementById('item');
-                    if (itemInput) {
-                        itemInput.value = event?.data?.items?.[0]?.id
-                    }
-                    const priceInput = document.getElementById('price');
-                    if (priceInput) {
-                        priceInput.value = event?.data?.items?.[0]?.price
-                    }
-                })
+                this._setItems({ items: event.data?.items });
             }
         });
+    }
+
+    _setItems({ items }) {
+        // 물품을 search-items에 넣어주는 함수
+        const container = document.getElementById('search-items');
+        container.innerHTML = ''; // 기존 내용을 비웁니다.
+        items.forEach((item) => {
+            const button = FuncButton({
+                text: `${item?.id}(${item?.name})`, parent: container,
+                attributes: [{ qualifiedName: 'data-id', value: item?.id }],
+                onClick: () => { button.remove() }
+            });
+            // button.addEventListener('click', () => { button.remove() });
+            const itemInput = document.getElementById('item');
+            if (itemInput) {
+                itemInput.value = items?.[0]?.id
+            }
+            const priceInput = document.getElementById('price');
+            if (priceInput) {
+                priceInput.value = items?.[0]?.price
+            }
+        })
+
     }
 
     // GET
@@ -119,6 +127,11 @@ export class SaleForm extends FormManager {
         this.currentMapData = arrayToMap(pagintionedData?.items);
         console.log('생성됨', this.currentMapData, pagintionedData);
         this._rowMaker(this.tbody, pagintionedData);
+    }
+
+    _handleSearchFormReset() {
+        console.log(this.defaultData);
+        super._handleSearchFormReset();
     }
 
     // _loadSearchData 메서드 오버라이드
