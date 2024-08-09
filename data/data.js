@@ -15,14 +15,14 @@ export class Data {
     }
 
     // GET
-    loadData() {
+    async loadData() {
         const jsonData = localStorage.getItem(this.localStorageKey);
         return jsonData ? JSON.parse(jsonData) : [];
     }
 
     // GET
-    getDataById(id) {
-        const existingData = this.loadData();
+    async getDataById(id) {
+        const existingData = await this.loadData();
         const item = existingData.find(item => item.id === id);
         if (!item) {
             throw new Error("Item not found");
@@ -31,25 +31,25 @@ export class Data {
     }
 
     // POST
-    appendDataWithId(item) {
+    async appendDataWithId(item) {
         if (!item.id || item.id === '') {
             item.id = this.generateUUID();
         }
 
-        const existingData = this.loadData();
+        const existingData = await this.loadData();
         existingData.push(item);
-        this.saveAllData(existingData);
+        await this.saveAllData(existingData);
     }
 
     // UTIL POST
-    saveAllData(existingData) {
+    async saveAllData(existingData) {
         const jsonData = JSON.stringify(existingData);
         localStorage.setItem(this.localStorageKey, jsonData);
     }
 
     // UPDATE
-    updateData(id, updatedData) {
-        const existingData = this.loadData();
+    async updateData(id, updatedData) {
+        const existingData = await this.loadData();
         if (!Array.isArray(existingData)) {
             throw new Error("Existing data is not an array");
         }
@@ -68,8 +68,8 @@ export class Data {
     }
 
     // DELETE
-    deleteDataById(id) {
-        let existingData = this.loadData();
+    async deleteDataById(id) {
+        let existingData = await this.loadData();
         if (!Array.isArray(existingData)) {
             throw new Error("Existing data is not an array");
         }
@@ -78,8 +78,8 @@ export class Data {
         this.saveAllData(existingData);
     }
 
-    searchData(criteria) {
-        const existingData = this.loadData();
+    async searchData(criteria) {
+        const existingData = await this.loadData();
         if (!Array.isArray(existingData)) {
             throw new Error("Existing data is not an array");
         }
@@ -111,14 +111,13 @@ export class Data {
         return result;
     }
 
-    searchSalesData(criteria) {
-        const existingData = this.loadData();
+    async searchSalesData(criteria) {
+        const existingData = await this.loadData();
         if (!Array.isArray(existingData)) {
             throw new Error("Existing data is not an array");
         }
 
         const { start_date, end_date, itemIds, description } = criteria;
-        console.log('criteria', criteria);
         const result = existingData.filter(data => {
             const itemArray = data.item.split(',').map(itemString => {
                 const [count, price] = itemString.split(':');

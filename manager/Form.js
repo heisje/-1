@@ -6,6 +6,7 @@ import { useQuery } from "../customhook/useQuery.js";
 import { Pagination } from "../components/Pagination.js";
 import { FuncButton } from "../components/FunButton.js";
 import { CheckTableManager } from "./CheckTableManager.js";
+import { arrayToMap } from "../util/arrayToMap.js";
 
 export class Form {
 
@@ -58,19 +59,19 @@ export class Form {
     _initForm() {
         this._initFormButtons();
 
-        this.form.querySelectorAll('.onSearchButton').forEach(button => {
+        document.querySelectorAll('.onSearchButton').forEach(button => {
             button.addEventListener("click", () => this._loadSearchData(this.currentPage));
         })
 
-        this.form.querySelectorAll(".openWindow").forEach(button => {
+        document.querySelectorAll(".openWindow").forEach(button => {
             button.addEventListener("click", (event) => this._handleOpenWindow(event));
         });
 
-        this.form.querySelectorAll("[data-pagi]").forEach(button => {
+        document.querySelectorAll("[data-pagi]").forEach(button => {
             button.addEventListener('click', (event) => this._handlePagination(event));
         });
 
-        const deleteButton = this.form.querySelector('.deleteButton');
+        const deleteButton = document.querySelector('.deleteButton');
         if (deleteButton) {
             deleteButton.addEventListener('click', () => this._handleDeleteSelected());
         }
@@ -101,7 +102,7 @@ export class Form {
         });
     }
 
-    _handleDeleteSelected() {
+    async _handleDeleteSelected() {
         const selectedIds = this._getSelectedRowIds();
         if (selectedIds.length > 0) {
             selectedIds.forEach(id => this.dataManager.deleteDataById(id));
@@ -178,7 +179,7 @@ export class Form {
 
 
     // POST
-    _handleSave(event) {
+    async _handleSave(event) {
         event.preventDefault();
 
         const key = this._validateFormData(this.requiredKeys);
@@ -189,14 +190,14 @@ export class Form {
 
         const dataObject = this._getFormData();
 
-        this.dataManager.appendDataWithId(dataObject);
+        await this.dataManager.appendDataWithId(dataObject);
         alert('Data saved to LocalStorage');
         this._sendMessage({ messageType: 'reSearchData' });
         window.close();
     }
 
     // UPDATE
-    _handleUpdate(event) {
+    async _handleUpdate(event) {
         event.preventDefault();
 
         const key = this._validateFormData(this.requiredKeys);
@@ -206,11 +207,10 @@ export class Form {
         }
 
         const dataObject = this._getFormData();
-        console.log(dataObject.id, this.defaultData?.id);
         if (!dataObject.id) {
             this.defaultData?.id;
         }
-        this.dataManager.updateData(this.defaultData?.id, dataObject);
+        await this.dataManager.updateData(this.defaultData?.id, dataObject);
 
         alert('Data updated in LocalStorage');
         this._sendMessage({ messageType: 'reSearchData' });
@@ -218,14 +218,15 @@ export class Form {
     }
 
     // DELETE
-    _handleDelete = () => {
-        this.dataManager.deleteDataById(this.defaultData?.id);
+    _handleDelete = async () => {
+        await this.dataManager.deleteDataById(this.defaultData?.id);
         alert(`${this.defaultData?.id}가 삭제되었습니다.`)
         this._sendMessage({ messageType: 'reSearchData' });
         window.close();
     }
 
     // OPEN NEW MODAL
+    // TODO : 분리
     _handleOpenWindow(event) {
         const href = event.currentTarget.getAttribute("data-href");
         const openType = event.currentTarget.getAttribute("data-query-modal-type");
@@ -264,10 +265,10 @@ export class Form {
     }
 
     // TABLE GET - 주로 마지막에 실행됨
-    _loadSearchData(pageNumber = 1) {
+    async _loadSearchData(pageNumber = 1) {
         const formObject = this._getFormData();
 
-        const data = this.dataManager.searchData(formObject);
+        const data = await this.dataManager.searchData(formObject);
         const pagintionedData = this.dataManager.pagintionedData(data, pageNumber);
 
         if (!this.tbody) return;
@@ -275,12 +276,11 @@ export class Form {
 
         Pagination(pagintionedData?.currentPage, pagintionedData?.totalPage,
             (index) => {
-                console.log(index.target.textContent);
                 this._handleIndexPagination(index.target.textContent);
             }
         );
 
-        this._updateCurrentMapData(pagintionedData?.items);
+        this.currentMapData = arrayToMap(pagintionedData?.items);
         this._rowMaker(this.tbody, pagintionedData);
     }
 
@@ -291,14 +291,15 @@ export class Form {
         data.forEach((item) => {
             currentDataObjcet.set(item?.id, { ...item });
         })
-        this.currentMapData = currentDataObjcet;
+        return currentDataObjcet;
     }
 
 
     // TABLE GET PAGINATION
-    _handlePagination = (event) => {
+    _handlePagination = async (event) => {
         const direction = parseInt(event.currentTarget.getAttribute('data-pagi'), 10);
-        const totalPages = Math.ceil(this.dataManager.loadData().length / this.dataManager.pageSize);
+        const loadedData = await this.dataManager.loadData();
+        const totalPages = Math.ceil(loadedData.length / this.dataManager.pageSize);
 
         if (this.currentPage + direction < 1) {
             this.currentPage = 1; // 페이지 번호가 1보다 작아지지 않도록 방지
@@ -311,12 +312,14 @@ export class Form {
 
         this._loadSearchData(this.currentPage);
         document.getElementById("currentPage").textContent = this.currentPage;
+        return;
     }
 
     // TABLE GET PAGINATION
-    _handleIndexPagination = (index) => {
+    _handleIndexPagination = async (index) => {
         const direction = parseInt(index);
-        const totalPages = Math.ceil(this.dataManager.loadData().length / this.dataManager.pageSize);
+        const loadedData = await this.dataManager.loadData();
+        const totalPages = Math.ceil(loadedData.length / this.dataManager.pageSize);
 
         if (direction < 1) {
             this.currentPage = 1; // 페이지 번호가 1보다 작아지지 않도록 방지
@@ -341,8 +344,7 @@ export class Form {
     // TABLE GET ID
     _getSelectedRowIds() {
         const selectedIds = [];
-        const checkboxes = document.querySelectorAll('#table-body input[type="checkbox"]:checked');
-
+        const checkboxes = this.tbody.querySelectorAll('input[type="checkbox"]:checked');
         checkboxes.forEach(checkbox => {
             const row = checkbox.closest('tr');
             if (row && row.id) {

@@ -7,6 +7,7 @@ class CheckBoxStateClass extends abstractObjectState {
         super(defaultData);
     }
 }
+
 const CheckBoxState = new CheckBoxStateClass({ selectedIds: [], maxCountSelect: 0, countSelected: 0 });
 export default CheckBoxState;
 

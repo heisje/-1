@@ -92,38 +92,38 @@
 					<button data-pagi="1">다음</button>
 				</div>
 				<div id="pagination-container"></div>
-
-				<table class="list-table">
-					<thead>
-						<tr>
-							<th>
-								<input
-									type="checkbox"
-									name="select_all"
-									id="table-parrent-checkbox"
-								/>
-							</th>
-							<th>전표일자/번호</th>
-							<th>품목코드</th>
-							<th>품목명</th>
-							<th>수량</th>
-							<th>단가</th>
-							<th>적요</th>
-						</tr>
-					</thead>
-					<tbody id="table-body" data-table="item"></tbody>
-				</table>
-
-				<div id="formButtons" style="display: inline-block"></div>
-				<div style="display: inline-block">
-					<button class="deleteButton">선택삭제</button>
-				</div>
 			</form>
 		</main>
 		<div id="message"></div>
-		<table class="list-table2">
-			<tbody id="table-body2" data-table="item"></tbody>
+
+		<table class="list-table">
+			<thead>
+				<tr>
+					<th>
+						<input
+							type="checkbox"
+							name="select_all"
+							id="table-parrent-checkbox"
+						/>
+					</th>
+					<th>전표일자/번호</th>
+					<th>품목코드</th>
+					<th>품목명</th>
+					<th>수량</th>
+					<th>단가</th>
+					<th>적요</th>
+				</tr>
+			</thead>
+			<tbody id="table-body" data-table="item"></tbody>
 		</table>
+
+		<div id="bottom-button-container">
+			<div id="formButtons" style="display: inline-block"></div>
+			<div style="display: inline-block">
+				<button class="deleteButton">선택삭제</button>
+			</div>
+		</div>
+
 		<script type="module" src="saleSearch.js"></script>
 	</body>
 </html>

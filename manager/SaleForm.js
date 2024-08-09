@@ -3,6 +3,7 @@ import { FuncButton } from '../components/FunButton.js';
 import { Pagination } from '../components/Pagination.js';
 import { CheckBox, OpenButton, Cell } from '../components/Td.js';
 import { Data } from '../data/data.js';
+import { arrayToMap } from '../util/arrayToMap.js';
 import { Form } from './Form.js';
 
 export class SaleForm extends Form {
@@ -89,8 +90,6 @@ export class SaleForm extends Form {
         const buttons = items.querySelectorAll('button');
         // 각 버튼 요소의 data-id 값을 배열로 수집합니다.
         const itemIds = Array.from(buttons).map(button => button.getAttribute('data-id'));
-        console.log(itemIds);
-
         const formData = new FormData(this.form);
         const dataObject = {};
         formData.forEach((value, key) => {
@@ -102,10 +101,10 @@ export class SaleForm extends Form {
     }
 
     // 검색 조건에 따라 테이블 데이터 로드 함수
-    _loadSearchData(pageNumber = 1) {
+    async _loadSearchData(pageNumber = 1) {
         const formObject = this._getFormData();
 
-        const totalData = this.dataManager.searchSalesData(formObject); // 검색된 데이터의 페이지네이션 결과 로드
+        const totalData = await this.dataManager.searchSalesData(formObject); // 검색된 데이터의 페이지네이션 결과 로드
         const pagintionedData = this.dataManager.pagintionedData(totalData, pageNumber);
 
         // 기존 데이터 삭제
@@ -116,15 +115,13 @@ export class SaleForm extends Form {
                 this._handleIndexPagination(index.target.textContent);
             }
         );
-
-        this._updateCurrentMapData(pagintionedData?.items);
-        console.log('currentData', this.currentMapData);
+        this.currentMapData = arrayToMap(pagintionedData?.items);
         this._rowMaker(this.tbody, pagintionedData);
     }
 
     // _loadSearchData 메서드 오버라이드
-    _rowMaker(parent, data) {
-        data.items.forEach((item) => {
+    async _rowMaker(parent, data) {
+        for (const item of data.items) {
             try {
                 const row = document.createElement('tr');
                 row.setAttribute('id', item?.id); // id 할당
@@ -141,7 +138,7 @@ export class SaleForm extends Form {
                 // 나머지 셀 생성
                 const itemDataManager = new Data('item');
 
-                const { id, name } = itemDataManager.getDataById(item?.item);
+                const { id, name } = await itemDataManager.getDataById(item?.item);
                 row.appendChild(Cell(id ?? ''));
                 row.appendChild(Cell(name ?? ''));
 
@@ -150,8 +147,10 @@ export class SaleForm extends Form {
                 row.appendChild(Cell(item?.description ?? ''));
 
                 parent.appendChild(row);
-            } catch (e) { console.log(e); }
-
-        });
+            } catch (e) {
+                console.log(e);
+            }
+        }
     }
+
 }

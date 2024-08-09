@@ -7,7 +7,7 @@ export class abstractObjectState {
         return this.state;
     }
 
-    setState(newState) {
+    setState(newSwtate) {
         this.state = { ...newState };
     }
 }

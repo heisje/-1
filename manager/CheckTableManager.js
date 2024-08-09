@@ -9,7 +9,7 @@ export class CheckTableManager {
         this.tableBody = document.getElementById('table-body');
         this.parrentCheckBox = document.getElementById('table-parrent-checkbox');
         this.childrenCheckBoxes = this.setAllChildrenCheckBox();
-
+        CheckBoxState.getState().selectedIds;
         const query = useQuery();
         const selectCount = parseInt(query?.['get-count']);
 
@@ -19,10 +19,8 @@ export class CheckTableManager {
 
                 checkbox.addEventListener('change', (event) => {
                     const checkedBoxes = this.getCheckedCheckBoxes();
-                    console.log(checkedBoxes.length, selectCount);
                     if (checkedBoxes.length > selectCount) {
                         event.target.checked = false;
-
                         alert(`최대 ${selectCount}개 항목만 선택할 수 있습니다.`);
                     }
                 });
@@ -31,7 +29,6 @@ export class CheckTableManager {
 
         this.childrenCheckBoxes.forEach((checkbox) => {
             checkbox.addEventListener('change', (event) => {
-                console.log(event.target.checked, this.parrentCheckBox)
                 if (!event.target.checked) {
                     this.parrentCheckBox.checked = false;
                 }
@@ -51,12 +48,10 @@ export class CheckTableManager {
     // 
     setAllChildrenCheckBox() {
         this.childrenCheckBoxes = this.tableBody.querySelectorAll('input[type="checkbox"]');
-        console.log('this.childrenCheckBoxes', this.childrenCheckBoxes);
         return this.childrenCheckBoxes;
     }
 
     getCheckedCheckBoxes() {
-        console.log(this.childrenCheckBoxes);
         const CheckedCheckBoxes = []
         if (this.childrenCheckBoxes.length > 0) {
             this.childrenCheckBoxes.forEach((checkbox, index) => {
