@@ -1,14 +1,10 @@
-import { queryObjectToURL } from "../util/query.js";
-import { Modal } from "../modal/modal.js";
 import { Button } from "../components/Button.js";
 import { Data } from "../data/data.js";
-import { useQuery } from "../customhook/useQuery.js";
 import { Pagination } from "../components/Pagination.js";
-import { FuncButton } from "../components/FunButton.js";
-import { CheckTableManager } from "./CheckTableManager.js";
 import { arrayToMap } from "../util/arrayToMap.js";
+import { handleOpenWindow } from "../modal/handleOpenWindow.js";
 
-export class Form {
+export class FormManager {
 
     constructor(formSelector, formType, dataManager = new Data(), defaultData, pageSize = 10) {
         this.form = document.querySelector(formSelector);
@@ -23,7 +19,7 @@ export class Form {
         // 현재 데이터를 저장한 이유: 잦은 참조가 필요하다. 
         // html에 data-로 데이터를 저장할 수는 있지만, 잦은 DOM API호출은 성능상 이점이 없다 생각된다. 
         //    // 그래서 ID를 ROW마다 참조해두고, 현재데이터에서 뽑아 쓰는 방식으로 구현
-        //    // Index참조와 Hash참조가 필요하기 때매 Map으로 구현
+        //    // Index참조(단순 그리기)와 Hash ID참조가 필요하기 때매 Map으로 구현
         // TODO: 데이터 참조 시작점을 이 객체로 변경
         this.currentMapData = defaultData;     // 현재 데이터
 
@@ -60,32 +56,28 @@ export class Form {
         this._initFormButtons();
 
         document.querySelectorAll('.onSearchButton').forEach(button => {
-            button.addEventListener("click", () => this._loadSearchData(this.currentPage));
+            button.addEventListener("click", async () => { await this._loadSearchData(this.currentPage) });
         })
 
         document.querySelectorAll(".openWindow").forEach(button => {
-            button.addEventListener("click", (event) => this._handleOpenWindow(event));
+            button.addEventListener("click", (event) => { handleOpenWindow(event) });
         });
 
         document.querySelectorAll("[data-pagi]").forEach(button => {
-            button.addEventListener('click', (event) => this._handlePagination(event));
+            button.addEventListener('click', async (event) => { await this._handlePagination(event) });
         });
 
         const deleteButton = document.querySelector('.deleteButton');
         if (deleteButton) {
-            deleteButton.addEventListener('click', () => this._handleDeleteSelected());
+            deleteButton.addEventListener('click', async () => { console.log('삭제시작'); await this._handleDeleteSelected(); console.log('삭제완료'); });
         }
 
         this._handleReset(); // Initialize the form with query data
-
 
         this._virtual_listenMessage();
 
         try {
             this._loadSearchData(this.currentPage);
-
-            new CheckTableManager();
-
 
         } catch (e) {
             console.log(e);
@@ -94,70 +86,60 @@ export class Form {
 
     // 이벤트 송신부. override사용중
     _virtual_listenMessage() {
-        window.addEventListener("message", (event) => {
+        window.addEventListener("message", async (event) => {
             // 공통해당 부분.
             if (event.data?.messageType === 'reSearchData') {
-                this._loadSearchData(this.currentPage);
+                await this._loadSearchData(this.currentPage);
             }
         });
     }
 
     async _handleDeleteSelected() {
+        console.log('삭제시작');
         const selectedIds = this._getSelectedRowIds();
         if (selectedIds.length > 0) {
-            selectedIds.forEach(id => this.dataManager.deleteDataById(id));
+            await Promise.all(selectedIds.map(id => this.dataManager.deleteDataById(id)));
             alert(`${selectedIds.length}개의 항목이 삭제되었습니다.`);
-            this._loadSearchData(this.currentPage); // Refresh the data
         } else {
             alert('선택된 항목이 없습니다.');
         }
+        console.log('결과:', this.currentPage);
+        console.log('결과:', this.currentPage);
+        await this._loadSearchData(this.currentPage); // Refresh the data
+        console.log(await this.dataManager.searchData());
     }
+
 
     _initFormButtons() {
         const formButtons = document.getElementById('formButtons');
         if (!formButtons) return;
 
-        if (this.formType === 'get') {
-            new Button({
-                text: '적용', classes: ['primary-button'],
-                onClick: () => {
-                    if (this._getSelectedRowIds().length === 0) {
-                        alert('체크된 항목이 없습니다.');
-                        return;
-                    }
-                    const ids = this._getSelectedRowIds();
-                    const items = ids.map((id) => this.currentMapData.get(id));
-                    const message = {
-                        // TODO: 메세지 타입 분할
-                        messageType: 'set-items',
-                        items,
-                        ids: this._getSelectedRowIds(),
-                    }
-
-
-                    window.opener.postMessage(message, window.location.origin);
-                    window.close();
-                }, parent: formButtons
-            });
-        }
-
-        if (this.formType === 'post') {
-            new Button({
-                text: '저장', classes: ['primary-button'], onClick: (event) => {
-                    this._handleSave(event);
-                }, parent: formButtons
-            });
-        }
-
-        if (this.formType === 'update') {
-            new Button({ text: '변경', classes: ['primary-button', 'onUpdateButton'], onClick: (event) => { this._handleUpdate(event) }, parent: formButtons });
-            new Button({ text: '삭제', onClick: () => this._handleDelete(), parent: formButtons });
+        switch (this.formType) {
+            case 'get':
+                new Button({
+                    text: '적용', classes: ['primary-button'],
+                    onClick: () => { this._handleInject() },
+                    parent: formButtons
+                });
+                break;
+            case 'post':
+                new Button({
+                    text: '저장', classes: ['primary-button'], onClick: (event) => {
+                        this._handleSave(event);
+                    }, parent: formButtons
+                });
+                break;
+            case 'update':
+                new Button({ text: '변경', classes: ['primary-button', 'onUpdateButton'], onClick: (event) => { this._handleUpdate(event) }, parent: formButtons });
+                new Button({ text: '삭제', onClick: () => this._handleDelete(), parent: formButtons });
+                break;
         }
 
         if (this.formType === 'post' || this.formType === 'update') {
             new Button({ text: '다시작성', onClick: () => this._handleReset(), parent: formButtons });
         }
 
+        // 폼데이터가 있으면 무조건 모달
         if (this.formType) {
             new Button({ text: '닫기', onClick: () => window.close(), parent: formButtons });
         }
@@ -175,8 +157,6 @@ export class Form {
 
         return dataObject;
     }
-
-
 
     // POST
     async _handleSave(event) {
@@ -225,33 +205,53 @@ export class Form {
         window.close();
     }
 
-    // OPEN NEW MODAL
-    // TODO : 분리
-    _handleOpenWindow(event) {
-        const href = event.currentTarget.getAttribute("data-href");
-        const openType = event.currentTarget.getAttribute("data-query-modal-type");
-
-        // data-query-..로 정의해논 데이터를 전부 쿼리로 생성
-        const queryObject = {};
-
-        Array.from(event.currentTarget.attributes).forEach(attr => {
-            if (attr.name.startsWith('data-query-')) {
-                const key = attr.name.replace('data-query-', '');
-                const value = attr.value;
-                queryObject[key] = value;
-            }
-        });
-
-        const row = event.currentTarget.closest('tr');
-        if (row) {
-            const id = row.getAttribute('id');
-            queryObject['id'] = id;
+    _handleInject() {
+        if (this._getSelectedRowIds().length === 0) {
+            alert('체크된 항목이 없습니다.');
+            return;
+        }
+        const ids = this._getSelectedRowIds();
+        const items = ids.map((id) => this.currentMapData.get(id));
+        const message = {
+            // TODO: 메세지 타입 분할
+            messageType: 'set-items',
+            items,
+            ids: this._getSelectedRowIds(),
         }
 
-        const url = queryObjectToURL(href, queryObject);
+        window.opener.postMessage(message, window.location.origin);
+        window.close();
 
-        new Modal(url, openType);
     }
+
+
+    // OPEN NEW MODAL
+    // TODO : 분리
+    // _handleOpenWindow(event) {
+    //     const href = event.currentTarget.getAttribute("data-href");
+    //     const openType = event.currentTarget.getAttribute("data-query-modal-type");
+
+    //     // data-query-..로 정의해논 데이터를 전부 쿼리로 생성
+    //     const queryObject = {};
+
+    //     Array.from(event.currentTarget.attributes).forEach(attr => {
+    //         if (attr.name.startsWith('data-query-')) {
+    //             const key = attr.name.replace('data-query-', '');
+    //             const value = attr.value;
+    //             queryObject[key] = value;
+    //         }
+    //     });
+
+    //     const row = event.currentTarget.closest('tr');
+    //     if (row) {
+    //         const id = row.getAttribute('id');
+    //         queryObject['id'] = id;
+    //     }
+
+    //     const url = queryObjectToURL(href, queryObject);
+
+    //     new Modal(url, openType);
+    // }
 
     // FORM RESET
     _handleReset = () => {
@@ -267,7 +267,6 @@ export class Form {
     // TABLE GET - 주로 마지막에 실행됨
     async _loadSearchData(pageNumber = 1) {
         const formObject = this._getFormData();
-
         const data = await this.dataManager.searchData(formObject);
         const pagintionedData = this.dataManager.pagintionedData(data, pageNumber);
 
@@ -275,8 +274,8 @@ export class Form {
         this.tbody.innerHTML = ''; // 기존 데이터 삭제
 
         Pagination(pagintionedData?.currentPage, pagintionedData?.totalPage,
-            (index) => {
-                this._handleIndexPagination(index.target.textContent);
+            async (index) => {
+                await this._handleIndexPagination(index.target.textContent);
             }
         );
 
@@ -330,8 +329,9 @@ export class Form {
             this.currentPage = totalPages
         }
 
-        this._loadSearchData(this.currentPage);
+        await this._loadSearchData(this.currentPage);
         document.getElementById("currentPage").textContent = this.currentPage;
+        return;
     }
 
 

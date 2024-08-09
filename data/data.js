@@ -61,7 +61,7 @@ export class Data {
                 updatedData.id = id;
             }
             existingData[index] = { ...updatedData };
-            this.saveAllData(existingData);
+            await this.saveAllData(existingData);
         } else {
             throw new Error("Item not found");
         }
@@ -75,7 +75,7 @@ export class Data {
         }
 
         existingData = existingData.filter(item => item.id !== id);
-        this.saveAllData(existingData);
+        await this.saveAllData(existingData);
     }
 
     async searchData(criteria) {

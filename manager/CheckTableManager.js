@@ -8,37 +8,41 @@ export class CheckTableManager {
         this.countSelected = 0;
         this.tableBody = document.getElementById('table-body');
         this.parrentCheckBox = document.getElementById('table-parrent-checkbox');
-        this.childrenCheckBoxes = this.setAllChildrenCheckBox();
+        this._setEventChildrenCheckBox();
+        this._initRender();
+    }
+
+
+
+    _setEventChildrenCheckBox() {
+        this.childrenCheckBoxes = this._setAllChildrenCheckBox();
+
         CheckBoxState.getState().selectedIds;
         const query = useQuery();
         const selectCount = parseInt(query?.['get-count']);
 
+        console.log(this.childrenCheckBoxes);
         if (selectCount >= 0) {
             this.parrentCheckBox.style.display = 'none';
-            this.childrenCheckBoxes.forEach((checkbox) => {
-
-                checkbox.addEventListener('change', (event) => {
-                    const checkedBoxes = this.getCheckedCheckBoxes();
-                    if (checkedBoxes.length > selectCount) {
-                        event.target.checked = false;
-                        alert(`최대 ${selectCount}개 항목만 선택할 수 있습니다.`);
-                    }
-                });
-            });
+            // this.tableBody.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+            //     checkbox.addEventListener('change', (event) => {
+            //         const checkedBoxes = this.tableBody.querySelectorAll('input[type="checkbox"]:checked');
+            //         console.log(checkedBoxes);
+            //         if (checkedBoxes.length > selectCount) {
+            //             event.target.checked = false;
+            //             alert(`최대 ${selectCount}개 항목만 선택할 수 있습니다.`);
+            //         }
+            //     });
+            // });
         }
 
-        this.childrenCheckBoxes.forEach((checkbox) => {
-            checkbox.addEventListener('change', (event) => {
-                if (!event.target.checked) {
-                    this.parrentCheckBox.checked = false;
-                }
-            });
-        });
 
-        if (this.parrentCheckBox) {
-            this.parrentCheckBox.addEventListener("click", (event) => {
+        const perrentCheckBox = document.getElementById('table-parrent-checkbox');
+        if (perrentCheckBox) {
+            perrentCheckBox.addEventListener("click", (event) => {
+                const childCheckboxes = perrentCheckBox.querySelectorAll('input[type="checkbox"]');
                 const isChecked = event.target.checked;
-                this.childrenCheckBoxes.forEach((checkbox) => {
+                childCheckboxes.forEach((checkbox) => {
                     checkbox.checked = isChecked;
                 });
             });
@@ -46,12 +50,12 @@ export class CheckTableManager {
     }
 
     // 
-    setAllChildrenCheckBox() {
+    _setAllChildrenCheckBox = () => {
         this.childrenCheckBoxes = this.tableBody.querySelectorAll('input[type="checkbox"]');
         return this.childrenCheckBoxes;
     }
 
-    getCheckedCheckBoxes() {
+    _getCheckedCheckBoxes = () => {
         const CheckedCheckBoxes = []
         if (this.childrenCheckBoxes.length > 0) {
             this.childrenCheckBoxes.forEach((checkbox, index) => {
@@ -61,5 +65,19 @@ export class CheckTableManager {
             })
         }
         return CheckedCheckBoxes;
+    }
+
+    _initRender() {
+        const perrentCheckBox = document.getElementById('table-parrent-checkbox');
+        if (perrentCheckBox) {
+            console.log(perrentCheckBox);
+            perrentCheckBox.addEventListener("change", (event) => {
+                const childCheckboxes = document.getElementById('table-body').querySelectorAll('input[type="checkbox"]');
+                const isChecked = event.target.checked;
+                childCheckboxes.forEach((checkbox) => {
+                    checkbox.checked = isChecked;
+                });
+            });
+        }
     }
 }

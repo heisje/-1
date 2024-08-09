@@ -21,16 +21,11 @@ export function Pagination(currentPage, totalPages, onClickEvent) {
     }
 
     for (let i = startPage; i <= endPage; i++) {
-        // li.addEventListener('click', () => {
-        //     Pagination(i, totalPages);
-        // });
-
-        const button = new Button({
+        new Button({
             classes: currentPage === i ? ['active'] : [],
             text: i,
             parent: pagination,
             onClick: onClickEvent
         });
-
     }
 }

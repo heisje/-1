@@ -3,6 +3,7 @@ import { useQuery } from '../customhook/useQuery.js';
 import { Data } from '../data/data.js';
 import { SaleForm } from '../manager/SaleForm.js';
 
+
 document.addEventListener('DOMContentLoaded', async () => {
     const queryData = useQuery();
     const formType = queryData?.['modal-type'];

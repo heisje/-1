@@ -1,6 +1,7 @@
 // OPEN NEW MODAL
 
 import { queryObjectToURL } from "../util/query.js";
+import { Modal } from "./modal.js";
 
 // TODO : 분리
 export const handleOpenWindow = (event) => {

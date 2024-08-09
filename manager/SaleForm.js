@@ -1,12 +1,14 @@
 import { Button } from '../components/Button.js';
 import { FuncButton } from '../components/FunButton.js';
 import { Pagination } from '../components/Pagination.js';
+import { SaleTableRow } from '../components/SaleTableRow.js';
 import { CheckBox, OpenButton, Cell } from '../components/Td.js';
 import { Data } from '../data/data.js';
+import { handleOpenWindow } from '../modal/handleOpenWindow.js';
 import { arrayToMap } from '../util/arrayToMap.js';
-import { Form } from './Form.js';
+import { FormManager } from './FormManager.js';
 
-export class SaleForm extends Form {
+export class SaleForm extends FormManager {
     constructor(formSelector, formType, dataManager, defaultData, pageSize = 10) {
         super(formSelector, formType, dataManager, defaultData, pageSize);
         this.requiredKeys = ['date', 'item', 'count', 'price'];
@@ -62,6 +64,7 @@ export class SaleForm extends Form {
         window.addEventListener("message", (event) => {
             if (event.data?.messageType === 'set-items') {
                 const container = document.getElementById('search-items');
+                container.innerHTML = ''; // 기존 내용을 비웁니다.
                 event?.data?.items.forEach((item) => {
                     const button = FuncButton({
                         text: `${item?.id}(${item?.name})`, parent: container,
@@ -78,8 +81,6 @@ export class SaleForm extends Form {
                         priceInput.value = event?.data?.items?.[0]?.price
                     }
                 })
-
-                // document.getElementById('item').value = event?.data?.ids;
             }
         });
     }
@@ -111,46 +112,18 @@ export class SaleForm extends Form {
         if (!this.tbody) return;
         this.tbody.innerHTML = '';
         Pagination(pagintionedData?.currentPage, pagintionedData?.totalPage,
-            (index) => {
-                this._handleIndexPagination(index.target.textContent);
+            async (index) => {
+                await this._handleIndexPagination(index.target.textContent);
             }
         );
         this.currentMapData = arrayToMap(pagintionedData?.items);
+        console.log('생성됨', this.currentMapData, pagintionedData);
         this._rowMaker(this.tbody, pagintionedData);
     }
 
     // _loadSearchData 메서드 오버라이드
-    async _rowMaker(parent, data) {
-        for (const item of data.items) {
-            try {
-                const row = document.createElement('tr');
-                row.setAttribute('id', item?.id); // id 할당
-
-                // 체크박스 셀 생성
-                row.appendChild(CheckBox(item));
-
-                const cell = document.createElement('td');
-                const UpdateButton = OpenButton(item?.date + '-' + item?.id?.slice(0, 2) ?? '', 'saleForm.html')
-                UpdateButton.addEventListener('click', this._handleOpenWindow);
-                cell.appendChild(UpdateButton);
-                row.appendChild(cell);
-
-                // 나머지 셀 생성
-                const itemDataManager = new Data('item');
-
-                const { id, name } = await itemDataManager.getDataById(item?.item);
-                row.appendChild(Cell(id ?? ''));
-                row.appendChild(Cell(name ?? ''));
-
-                row.appendChild(Cell(item?.count ?? ''));
-                row.appendChild(Cell(item?.price ?? ''));
-                row.appendChild(Cell(item?.description ?? ''));
-
-                parent.appendChild(row);
-            } catch (e) {
-                console.log(e);
-            }
-        }
+    _rowMaker(parent, data) {
+        SaleTableRow({ parent, data });
     }
 
 }

@@ -7,7 +7,15 @@ export class abstractObjectState {
         return this.state;
     }
 
-    setState(newSwtate) {
+    setState(newState) {
         this.state = { ...newState };
+    }
+
+    addState(newKeyValue) {
+        this.state = { ...this.state, ...newKeyValue }
+    }
+
+    changeKeyState(newKeyValue) {
+        this.state = { ...this.state, ...newKeyValue }
     }
 }
