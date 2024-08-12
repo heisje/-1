@@ -15,14 +15,14 @@ export class Data {
     }
 
     // GET
-    async loadData() {
+    async getAll() {
         const jsonData = localStorage.getItem(this.localStorageKey);
         return jsonData ? JSON.parse(jsonData) : [];
     }
 
     // GET
-    async getDataById(id) {
-        const existingData = await this.loadData();
+    async getById(id) {
+        const existingData = await this.getAll();
         const item = existingData.find(item => item.id === id);
         if (!item) {
             throw new Error("Item not found");
@@ -31,25 +31,25 @@ export class Data {
     }
 
     // POST
-    async appendDataWithId(item) {
+    async appendById(item) {
         if (!item.id || item.id === '') {
             item.id = this.generateUUID();
         }
 
-        const existingData = await this.loadData();
+        const existingData = await this.getAll();
         existingData.push(item);
-        await this.saveAllData(existingData);
+        await this.saveAll(existingData);
     }
 
     // UTIL POST
-    async saveAllData(existingData) {
+    async saveAll(existingData) {
         const jsonData = JSON.stringify(existingData);
         localStorage.setItem(this.localStorageKey, jsonData);
     }
 
     // UPDATE
-    async updateData(id, updatedData) {
-        const existingData = await this.loadData();
+    async update(id, updatedData) {
+        const existingData = await this.getAll();
         if (!Array.isArray(existingData)) {
             throw new Error("Existing data is not an array");
         }
@@ -61,25 +61,25 @@ export class Data {
                 updatedData.id = id;
             }
             existingData[index] = { ...updatedData };
-            await this.saveAllData(existingData);
+            await this.saveAll(existingData);
         } else {
             throw new Error("Item not found");
         }
     }
 
     // DELETE
-    async deleteDataById(id) {
-        let existingData = await this.loadData();
+    async deleteById(id) {
+        let existingData = await this.getAll();
         if (!Array.isArray(existingData)) {
             throw new Error("Existing data is not an array");
         }
 
         existingData = existingData.filter(item => item.id !== id);
-        await this.saveAllData(existingData);
+        await this.saveAll(existingData);
     }
 
-    async searchData(criteria) {
-        const existingData = await this.loadData();
+    async search(criteria) {
+        const existingData = await this.getAll();
         if (!Array.isArray(existingData)) {
             throw new Error("Existing data is not an array");
         }
@@ -112,7 +112,7 @@ export class Data {
     }
 
     async searchSalesData(criteria) {
-        const existingData = await this.loadData();
+        const existingData = await this.getAll();
         if (!Array.isArray(existingData)) {
             throw new Error("Existing data is not an array");
         }
@@ -134,22 +134,6 @@ export class Data {
 
                 return matchesStartDate && matchesEndDate && matchesItem && matchesDescription;
             });
-
-            // if (typeof data.item === Array){
-            //     const itemArray = data.item.split(',').map(itemString => {
-            //         const [count, price] = itemString.split(':');
-            //         return { date: data.date, item: data.item, count, price, description: data.description, id: data.id };
-            //     });
-            //     return itemArray.some(itemData => {
-            //         const matchesStartDate = !start_date || new Date(itemData.date) >= new Date(start_date);
-            //         const matchesEndDate = !end_date || new Date(itemData.date) <= new Date(end_date);
-            //         const matchesItem = !itemIds || itemData.item.includes(itemIds);
-            //         const matchesDescription = !description || itemData.description.includes(description);
-
-            //         return matchesStartDate && matchesEndDate && matchesItem && matchesDescription;
-            //     });
-            // }
-
 
         });
 

@@ -9,7 +9,7 @@ export function ItemTableRow({ parent, data, currentMapData }) {
     CheckBoxState.changeKeyState({ selectedIds: new Set() });
     const checkedCount = useQuery()?.['get-count'];
 
-    data.items.forEach((item) => {
+    data.items.forEach((item, index) => {
         const row = document.createElement('tr');
         row.setAttribute('id', item?.id); // id 할당
 
@@ -37,6 +37,7 @@ export function ItemTableRow({ parent, data, currentMapData }) {
                 }
                 CheckBoxState.changeKeyState({ selectedIds: selectedIds });
             },
+            index: index + 1,
             parent: checkboxTd
         });
         row.appendChild(checkboxTd);

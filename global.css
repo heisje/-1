@@ -1,6 +1,70 @@
+body {
+	background-color: #f7f8f9;
+}
+
+nav {
+	display: flex;
+	gap: 1rem;
+
+	padding: 0.5rem 1rem;
+	position: fixed;
+	background-color: #f0f1f2;
+	border-bottom: 1px solid #99999950;
+	width: 100%;
+	top: 0;
+	left: 0;
+}
+nav a {
+	padding: 0.4rem 1rem;
+	border-radius: 0.2rem;
+
+	color: #111111;
+
+	text-decoration: none;
+}
+
+nav a:hover {
+	background-color: rgb(60, 60, 225);
+	color: #ffffff;
+}
+
 main {
-	margin: auto;
-	max-width: 800px;
+	margin-left: 1rem;
+	margin-right: 1rem;
+	margin-top: 4rem;
+	max-width: 1000px;
+}
+
+h1 {
+	font-weight: 600;
+	font-size: 1.5rem;
+	margin: 1rem 0;
+}
+
+#page-container {
+	display: flex;
+
+	margin: 1rem 0;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.2rem;
+}
+
+#page-container #page-left-current-right {
+	display: flex;
+	align-items: center;
+	gap: 0.2rem;
+}
+
+#page-container button {
+	border-radius: 99rem;
+	padding: 0;
+	width: 2rem;
+	height: 2rem;
+}
+
+button {
+	margin-right: 2px;
 }
 
 button {
@@ -11,18 +75,23 @@ button {
 	cursor: pointer;
 }
 
-input::placeholder {
-	color: #aaaaaa;
-}
-
-input {
-	padding: 0.2rem;
-	border: 1px solid #aaa;
-	flex-grow: 1;
+section {
+	margin-top: 1rem;
+	margin-right: 1rem;
+	margin-left: 1rem;
+	margin-bottom: 4rem;
+	max-width: 1000px;
 }
 
 .header-input {
-	padding: 0;
+	padding: 0.2rem 1rem;
+	border: 1px solid #dee2e6;
+	border-radius: 1rem;
+	background-color: #ffffff;
+}
+
+.header-input label {
+	color: #333;
 }
 
 .header-input li {
@@ -32,34 +101,36 @@ input {
 	align-items: center;
 }
 
-.header-input li:not(:last-child) {
-	border: 1px solid #aaaaaa;
-	border-bottom: none; /* Remove bottom border */
-}
-
-.header-input li:last-child {
-	border: 1px solid #aaaaaa;
-}
-
 .header-input li label {
 	width: 100px;
 }
 
 .header-input .css-date {
 	display: flex;
+	gap: 0.5rem;
+	align-items: center;
 }
 
 .list-table {
 	border-collapse: collapse;
 	width: 100%;
 	margin: 1rem 0;
+	border: 1px solid #dee2e6;
+	background-color: #fff;
+}
+.list-table tr th {
+	border: 1px solid #dee2e6;
+	padding: 8px;
+	text-align: center;
+	vertical-align: middle;
 }
 
 .list-table th,
 .list-table td {
-	border: 1px solid #aaaaaa;
+	border: 1px solid #dee2e6;
 	padding: 8px;
 	text-align: left;
+	vertical-align: middle;
 }
 
 .list-table th {
@@ -72,27 +143,60 @@ input {
 	width: 0;
 }
 
+.list-table button {
+	background: inherit;
+	border: none;
+	box-shadow: none;
+	border-radius: 0;
+	padding: 0;
+	overflow: visible;
+	cursor: pointer;
+	color: rgb(60, 60, 255);
+}
+
+.list-table button:hover {
+	text-decoration: underline;
+}
+
 .primary-button {
 	background-color: rgb(60, 60, 255);
 	color: #ffffff;
 }
+
+input {
+	border: 1px solid #999;
+	border-radius: 4px;
+	padding: 0.5rem;
+	flex-grow: 1;
+}
+
 .search-input-container {
 	display: flex;
 	flex-grow: 1;
+	justify-content: center;
+	align-items: center;
 }
 
 .search-input-container i {
 	padding: 0.2rem;
+	background-color: rgb(60, 60, 225, 0.7);
+	border-radius: 9rem;
+	color: #ffffff;
+}
+
+.search-input-container i:hover {
+	background-color: rgb(60, 60, 225);
 }
 
 .search-input {
 	display: flex;
 	gap: 2px;
 	flex-grow: 1;
-}
-
-button {
-	margin-right: 2px;
+	align-items: center;
+	border: 1px solid #999;
+	border-radius: 4px;
+	padding: 5px;
+	width: 300px;
 }
 
 .active {
@@ -100,20 +204,6 @@ button {
 	color: white;
 }
 
-/* ///// */
-.search-input-container {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-.search-input {
-	display: flex;
-	align-items: center;
-	border: 1px solid #ccc;
-	border-radius: 4px;
-	padding: 5px;
-	width: 300px;
-}
 #search-items {
 	display: flex;
 	flex-wrap: wrap;
@@ -138,4 +228,33 @@ button {
 #searchIcon {
 	margin-right: 5px;
 	cursor: pointer;
+}
+
+.checkbox-container {
+	width: 1rem;
+	height: 1rem;
+}
+
+input[type="checkbox"] {
+	display: none;
+}
+input[type="checkbox"] + label {
+	display: flex;
+	width: 1rem;
+	height: 1rem;
+	font-size: 0.8rem;
+	text-align: center;
+	vertical-align: middle;
+	border: 1px solid #70707050;
+	border-radius: 0.2rem;
+	position: absolute;
+	top: 0;
+	left: 0;
+	justify-content: center;
+	align-items: center;
+}
+
+.checked label {
+	background: rgb(60, 60, 255);
+	color: #fff;
 }

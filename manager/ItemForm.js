@@ -1,6 +1,5 @@
 import { Button } from '../components/Button.js';
 import { ItemTableRow } from '../components/ItemTableRow.js';
-import { handleOpenWindow } from '../modal/handleOpenWindow.js';
 import { FormManager } from './FormManager.js';
 
 export class ItemForm extends FormManager {
@@ -29,7 +28,7 @@ export class ItemForm extends FormManager {
     }
 
     // override 행 생성
-    _rowMaker(parent, data) {
+    _virtual_rowMaker(parent, data) {
         ItemTableRow({ parent, data, currentMapData: this.currentMapData });
     }
 }

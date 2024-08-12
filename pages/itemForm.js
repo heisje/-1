@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 데이터
     const dataManager = new Data('item');
     const queryId = queryData?.id;
-    const defaultData = queryId ? await dataManager.getDataById(queryId) : {};
+    const defaultData = queryId ? await dataManager.getById(queryId) : {};
 
     new ItemForm('#dataForm', formType, dataManager, defaultData, 10);
 });

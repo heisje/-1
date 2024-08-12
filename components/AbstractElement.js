@@ -7,6 +7,7 @@ export class AbstractElement {
     }
 
     _createElement(element, {
+        children,
         text = '',
         classes = [],
         onClick = null,
@@ -31,6 +32,10 @@ export class AbstractElement {
 
         if (onClick) {
             element.addEventListener('click', onClick);
+        }
+
+        if (children) {
+            element.appendChild(children);
         }
 
         parent.appendChild(element);

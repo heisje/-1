@@ -4,7 +4,9 @@ import { CCheckBox } from "./CheckBox.js";
 import { Cell, OpenButton } from "./Td.js";
 
 export async function SaleTableRow({ parent, data }) {
-    for (const item of data.items) {
+    for (let i = 0; i < data.items.length; i++) {
+        const item = data.items[i];
+
         try {
             const row = document.createElement('tr');
             row.setAttribute('id', item?.id); // id 할당
@@ -17,7 +19,9 @@ export async function SaleTableRow({ parent, data }) {
                     if (!event.target.checked) {
                         parrentCheckBox.checked = false;
                     }
-                }, parent: checkboxTd
+                },
+                index: i + 1,
+                parent: checkboxTd
             });
             row.appendChild(checkboxTd);
 
@@ -30,7 +34,7 @@ export async function SaleTableRow({ parent, data }) {
             // 나머지 셀 생성
             const itemDataManager = new Data('item');
 
-            const { id, name } = await itemDataManager.getDataById(item?.item);
+            const { id, name } = await itemDataManager.getById(item?.item);
             row.appendChild(Cell(id ?? ''));
             row.appendChild(Cell(name ?? ''));
 

@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const dataManager = new Data('sales');
     const queryId = queryData?.id;
-    const defaultData = queryId ? await dataManager.getDataById(queryId) : {};
+    const defaultData = queryId ? await dataManager.getById(queryId) : {};
 
     const perrentCheckBox = document.getElementById('table-parrent-checkbox');
     if (perrentCheckBox) {

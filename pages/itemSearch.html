@@ -8,6 +8,7 @@
 			rel="stylesheet"
 			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
 		/>
+		<link rel="stylesheet" href="../style/reset.css" />
 		<link rel="stylesheet" href="../../global.css" />
 	</head>
 	<body>
@@ -57,48 +58,55 @@
 					</ul>
 				</div>
 
-				<div>현재페이지:<span id="currentPage">1</span></div>
-				<button data-pagi="-1">이전</button>
-				<button data-pagi="1">다음</button>
-				<div id="pagination-container"></div>
+				<div id="page-container">
+					<div id="page-left-current-right">
+						<button data-pagi="-9999"><<</button>
+						<button data-pagi="-1"><</button>
+						<div id="pagination-container"></div>
+						<button data-pagi="1">></button>
+						<button data-pagi="9999">>></button>
+					</div>
+				</div>
 			</form>
 		</main>
 
-		<table class="list-table">
-			<thead>
-				<tr>
-					<th>
-						<input
-							type="checkbox"
-							name="select_all"
-							id="table-parrent-checkbox"
-						/>
-					</th>
-					<th>품목코드</th>
-					<th>품목명</th>
-					<th>단가</th>
-					<th>
-						<!-- <button
+		<section>
+			<table class="list-table">
+				<thead>
+					<tr>
+						<th>
+							<input
+								type="checkbox"
+								name="select_all"
+								id="table-parrent-checkbox"
+							/>
+						</th>
+						<th>품목코드</th>
+						<th>품목명</th>
+						<th>단가</th>
+						<th>
+							<!-- <button
 						class="openWindow"
 						data-href="itemForm.html"
 						data-query-modal-type="update"
 					>
 						수정
 					</button> -->
-					</th>
-				</tr>
-			</thead>
-			<tbody id="table-body" data-table="item">
-				<!-- Data rows will be inserted here -->
-			</tbody>
-		</table>
+						</th>
+					</tr>
+				</thead>
+				<tbody id="table-body" data-table="item">
+					<!-- Data rows will be inserted here -->
+				</tbody>
+			</table>
 
-		<div id="bottom-button-container">
-			<div id="formButtons" style="display: inline-block"></div>
-			<div style="display: inline-block">
-				<button class="deleteButton">선택삭제</button>
+			<div id="bottom-button-container">
+				<div id="formButtons" style="display: inline-block"></div>
+				<div style="display: inline-block">
+					<button class="deleteButton">선택삭제</button>
+				</div>
 			</div>
-		</div>
+		</section>
 
 		<script type="module" src="./itemSearch.js"></script>
 	</body>

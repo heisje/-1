@@ -1,5 +1,4 @@
 import { Button } from '../components/Button.js';
-import { FuncButton } from '../components/FunButton.js';
 import { Pagination } from '../components/Pagination.js';
 import { SaleTableRow } from '../components/SaleTableRow.js';
 import { arrayToMap } from '../util/arrayToMap.js';
@@ -8,7 +7,6 @@ import { FormManager } from './FormManager.js';
 export class SaleForm extends FormManager {
     constructor(formSelector, formType, dataManager, defaultData, pageSize = 10) {
         super(formSelector, formType, dataManager, defaultData, pageSize);
-        this.requiredKeys = ['date', 'item', 'count', 'price'];
     }
     // override
     _initFormButtons() {
@@ -61,8 +59,8 @@ export class SaleForm extends FormManager {
         }
     }
 
-    _virtual_listenMessage() {
-        super._virtual_listenMessage();
+    _init_virtual_listenMessage() {
+        super._init_virtual_listenMessage();
         window.addEventListener("message", (event) => {
             if (event.data?.messageType === 'set-items') {
                 this._setItems({ items: event.data?.items });
@@ -75,11 +73,12 @@ export class SaleForm extends FormManager {
         const container = document.getElementById('search-items');
         container.innerHTML = ''; // 기존 내용을 비웁니다.
         items.forEach((item) => {
-            const button = FuncButton({
+            const button = new Button({
                 text: `${item?.id}(${item?.name})`, parent: container,
                 attributes: [{ qualifiedName: 'data-id', value: item?.id }],
-                onClick: () => { button.remove() }
             });
+            button.addRemoveEventListener();
+
             // button.addEventListener('click', () => { button.remove() });
             const itemInput = document.getElementById('item');
             if (itemInput) {
@@ -110,7 +109,7 @@ export class SaleForm extends FormManager {
     }
 
     // 검색 조건에 따라 테이블 데이터 로드 함수
-    async _loadSearchData(pageNumber = 1) {
+    async _loadSearch(pageNumber = 1) {
         const formObject = this._getFormData();
 
         const totalData = await this.dataManager.searchSalesData(formObject); // 검색된 데이터의 페이지네이션 결과 로드
@@ -126,7 +125,7 @@ export class SaleForm extends FormManager {
         );
         this.currentMapData = arrayToMap(pagintionedData?.items);
         console.log('생성됨', this.currentMapData, pagintionedData);
-        this._rowMaker(this.tbody, pagintionedData);
+        this._virtual_rowMaker(this.tbody, pagintionedData);
     }
 
     _handleSearchFormReset() {
@@ -134,8 +133,8 @@ export class SaleForm extends FormManager {
         super._handleSearchFormReset();
     }
 
-    // _loadSearchData 메서드 오버라이드
-    _rowMaker(parent, data) {
+    // _loadSearch 메서드 오버라이드
+    _virtual_rowMaker(parent, data) {
         SaleTableRow({ parent, data });
     }
 
