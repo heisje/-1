@@ -5,6 +5,7 @@ import { arrayToMap } from "../util/arrayToMap.js";
 import { handleOpenWindow } from "../modal/handleOpenWindow.js";
 import { HeaderByModalType } from "../components/HeaderText.js";
 import { CheckTableVM } from "./CheckTableVM.js";
+import { OCurrentData } from "../ObservingUI/OState.js";
 
 
 // 행위대리자
@@ -26,6 +27,9 @@ export class FormVM {
         //    // Index참조(단순 그리기)와 Hash ID참조가 필요하기 때매 Map으로 구현
         // TODO: 데이터 참조 시작점을 이 객체로 변경
         this.currentMapData = defaultData ?? new Map();     // 현재 데이터
+        if (this.currentMapData.size > 0) {
+            OCurrentData.update(this.currentMapData);
+        }
 
         this._initMapping();
         this._virtual_handleSearchFormReset(); // Initialize the form with query data
@@ -189,9 +193,7 @@ export class FormVM {
 
         window.opener.postMessage(message, window.location.origin);
         window.close();
-
     }
-
 
     // FORM RESET
     // virtual
@@ -222,7 +224,8 @@ export class FormVM {
         );
 
         this.currentMapData = arrayToMap(pagintionedData?.items);
-        this._virtual_rowMaker(this.tbody, pagintionedData);
+        OCurrentData.update(this.currentMapData);
+        // this._virtual_rowMaker(this.tbody, pagintionedData);
     }
 
 

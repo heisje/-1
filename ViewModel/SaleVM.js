@@ -1,6 +1,7 @@
 import { Button } from '../components/common/Button.js';
 import { Pagination } from '../components/Pagination.js';
 import { SaleTableRow } from '../components/SaleTableRow.js';
+import { OCurrentData } from '../ObservingUI/OState.js';
 import { arrayToMap } from '../util/arrayToMap.js';
 import { FormVM } from './FormVM.js';
 
@@ -125,8 +126,9 @@ export class SaleVM extends FormVM {
             }
         );
         this.currentMapData = arrayToMap(pagintionedData?.items);
+        OCurrentData.update(this.currentMapData);
         console.log('생성됨', this.currentMapData, pagintionedData);
-        this._virtual_rowMaker(this.tbody, pagintionedData);
+        // this._virtual_rowMaker(this.tbody, pagintionedData);
     }
 
     _virtual_handleSearchFormReset() {
