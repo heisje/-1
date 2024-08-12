@@ -1,16 +1,17 @@
-import { Button } from '../components/Button.js';
+import { Button } from '../components/common/Button.js';
 import { Pagination } from '../components/Pagination.js';
 import { SaleTableRow } from '../components/SaleTableRow.js';
 import { arrayToMap } from '../util/arrayToMap.js';
-import { FormManager } from './FormManager.js';
+import { FormVM } from './FormVM.js';
 
-export class SaleForm extends FormManager {
-    constructor(formSelector, formType, dataManager, defaultData, pageSize = 10) {
-        super(formSelector, formType, dataManager, defaultData, pageSize);
+export class SaleVM extends FormVM {
+    constructor(formType, dataManager, defaultData, pageSize = 10) {
+        super(formType, dataManager, defaultData, pageSize);
     }
     // override
     _initFormButtons() {
         if (this.formType !== 'update' && this.formType !== 'post') {
+
             new Button({
                 text: '신규',
                 classes: ['primary-button', 'openWindow'],
@@ -93,7 +94,7 @@ export class SaleForm extends FormManager {
     }
 
     // GET
-    _getFormData() {
+    _virtual_getSearchForm() {
         const items = document.getElementById('search-items');
         const buttons = items.querySelectorAll('button');
         // 각 버튼 요소의 data-id 값을 배열로 수집합니다.
@@ -109,8 +110,8 @@ export class SaleForm extends FormManager {
     }
 
     // 검색 조건에 따라 테이블 데이터 로드 함수
-    async _loadSearch(pageNumber = 1) {
-        const formObject = this._getFormData();
+    async _virtual_loadSearch(pageNumber = 1) {
+        const formObject = this._virtual_getSearchForm();
 
         const totalData = await this.dataManager.searchSalesData(formObject); // 검색된 데이터의 페이지네이션 결과 로드
         const pagintionedData = this.dataManager.pagintionedData(totalData, pageNumber);
@@ -128,9 +129,9 @@ export class SaleForm extends FormManager {
         this._virtual_rowMaker(this.tbody, pagintionedData);
     }
 
-    _handleSearchFormReset() {
+    _virtual_handleSearchFormReset() {
         console.log(this.defaultData);
-        super._handleSearchFormReset();
+        super._virtual_handleSearchFormReset();
     }
 
     // _loadSearch 메서드 오버라이드

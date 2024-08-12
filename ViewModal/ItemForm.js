@@ -1,12 +1,10 @@
-import { Button } from '../components/Button.js';
+import { Button } from '../components/common/Button.js';
 import { ItemTableRow } from '../components/ItemTableRow.js';
 import { FormManager } from './FormManager.js';
 
 export class ItemForm extends FormManager {
-    constructor(formSelector, formType, dataManager, defaultData, pageSize = 10) {
-        super(formSelector, formType, dataManager, defaultData, pageSize);
-        this.requiredKeys = ['name', 'id'];
-
+    constructor(formType, dataManager, defaultData, pageSize = 10) {
+        super(formType, dataManager, defaultData, pageSize);
     }
 
     // override

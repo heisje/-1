@@ -1,4 +1,4 @@
-import { AbstractElement } from "./AbstractElement.js";
+import { AbstractElement } from "../AbstractElement.js";
 
 export class Button extends AbstractElement {
     constructor(options) {

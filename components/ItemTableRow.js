@@ -1,7 +1,7 @@
 import { useQuery } from "../customhook/useQuery.js";
 import { handleOpenWindow } from "../modal/handleOpenWindow.js";
 import CheckBoxState from "../state/checkBoxState.js";
-import { Button } from "./Button.js";
+import { Button } from "./common/Button.js";
 import { CCheckBox } from "./CheckBox.js";
 import { OpenButton, Td } from "./Td.js";
 
@@ -43,22 +43,31 @@ export function ItemTableRow({ parent, data, currentMapData }) {
         row.appendChild(checkboxTd);
 
         // 나머지 셀 생성
-        const celltd = document.createElement('td');
-        new Button({
-            text: `${item?.id}`,
-            onClick: () => {
-                const message = {
-                    // TODO: 메세지 타입 분할
-                    messageType: 'set-items',
-                    items: [currentMapData.get(item?.id)],
-                    ids: item?.id,
-                }
+        const modalType = useQuery()?.['modal-type'];
+        if (modalType) {
+            const celltd = document.createElement('td');
+            new Button({
+                text: `${item?.id}`,
+                onClick: () => {
+                    const message = {
+                        // TODO: 메세지 타입 분할
+                        messageType: 'set-items',
+                        items: [currentMapData.get(item?.id)],
+                        ids: item?.id,
+                    }
 
-                window.opener.postMessage(message, window.location.origin);
-                window.close();
-            }, parent: celltd
-        });
-        row.appendChild(celltd);
+                    window.opener.postMessage(message, window.location.origin);
+                    window.close();
+                }, parent: celltd
+            });
+            row.appendChild(celltd);
+        } else {
+            new Td({
+                text: item?.id ?? '',
+                parent: row
+            });
+        }
+
         new Td({
             text: item?.name ?? '',
             parent: row

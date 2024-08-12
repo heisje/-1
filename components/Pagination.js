@@ -1,4 +1,4 @@
-import { Button } from "./Button.js";
+import { Button } from "./common/Button.js";
 
 export function Pagination(currentPage, totalPages, onClickEvent) {
     const pagination = document.getElementById('pagination-container');

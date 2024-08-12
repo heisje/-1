@@ -1,7 +1,7 @@
 
 import { useQuery } from '../customhook/useQuery.js';
 import { Data } from '../data/data.js';
-import { ItemForm } from '../manager/ItemForm.js';
+import { ItemVM } from '../ViewModel/ItemVM.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const queryData = useQuery();
@@ -12,5 +12,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     const queryId = queryData?.id;
     const defaultData = queryId ? await dataManager.getById(queryId) : {};
 
-    new ItemForm('#dataForm', formType, dataManager, defaultData, 10);
+    new ItemVM(formType, dataManager, defaultData, 10);
 });

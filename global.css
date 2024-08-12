@@ -99,6 +99,11 @@ section {
 	padding: 0.4rem;
 	justify-content: flex-start;
 	align-items: center;
+	border-radius: 0.2rem;
+}
+
+.header-input li:hover {
+	background-color: rgb(60, 60, 255, 0.05);
 }
 
 .header-input li label {
@@ -170,6 +175,10 @@ input {
 	flex-grow: 1;
 }
 
+input::placeholder {
+	color: #aaa;
+}
+
 .search-input-container {
 	display: flex;
 	flex-grow: 1;
@@ -212,13 +221,19 @@ input {
 	margin-right: 5px;
 }
 #search-items button {
-	background-color: #88ffd3;
+	background-color: rgb(185, 185, 255);
 	color: none;
 	border: none;
 	border-radius: 4px;
 	padding: 5px 10px;
 	cursor: pointer;
 }
+
+#search-items button::after {
+	content: "❌"; /* X 이모티콘 */
+	margin-left: 5px; /* 요소와 X 이모티콘 사이의 간격 */
+}
+
 #fake-item-input {
 	border: none;
 	outline: none;
@@ -234,11 +249,15 @@ input {
 	width: 1rem;
 	height: 1rem;
 }
+input[type="date"] {
+	cursor: pointer;
+}
 
-input[type="checkbox"] {
+tbody input[type="checkbox"] {
 	display: none;
 }
-input[type="checkbox"] + label {
+
+tbody input[type="checkbox"] + label {
 	display: flex;
 	width: 1rem;
 	height: 1rem;

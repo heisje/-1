@@ -1,7 +1,7 @@
 
 import { useQuery } from '../customhook/useQuery.js';
 import { Data } from '../data/data.js';
-import { SaleForm } from '../manager/SaleForm.js';
+import { SaleVM } from '../ViewModel/SaleVM.js';
 
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -13,5 +13,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     const queryId = queryData?.id;
     const defaultData = queryId ? await dataManager.getById(queryId) : {};
 
-    new SaleForm('#dataForm', formType, dataManager, defaultData, 10);
+    new SaleVM(formType, dataManager, defaultData, 10);
 });

@@ -1,12 +1,17 @@
-import { Button } from "../components/Button.js";
+import { Button } from "../components/common/Button.js";
 import { Data } from "../data/data.js";
 import { Pagination } from "../components/Pagination.js";
 import { arrayToMap } from "../util/arrayToMap.js";
 import { handleOpenWindow } from "../modal/handleOpenWindow.js";
+import { HeaderByModalType } from "../components/HeaderText.js";
+import { CheckTableVM } from "./CheckTableVM.js";
 
-export class FormManager {
-    constructor(formSelector, formType, dataManager, defaultData, pageSize = 10) {
-        this.form = document.querySelector(formSelector);
+
+// 행위대리자
+export class FormVM {
+    constructor(formType, dataManager, defaultData, pageSize = 10) {
+        // 1회성은 따로 mapping하지 않음
+        this.form = document.getElementById('dataForm');
         this.tbody = document.getElementById('table-body');
         this.dataManager = dataManager ?? new Data();     // 데이터 관리용 클래스
         this.currentPage = 1;               // 현재 페이지
@@ -22,59 +27,28 @@ export class FormManager {
         // TODO: 데이터 참조 시작점을 이 객체로 변경
         this.currentMapData = defaultData ?? new Map();     // 현재 데이터
 
-        if (this.form) {
-            this._initMapping();
-        }
+        this._initMapping();
+        this._virtual_handleSearchFormReset(); // Initialize the form with query data
+        this._virtual_loadSearch(this.currentPage);
     }
 
     // 폼의 형태에 맞춰서 버튼 부착
     _initMapping() {
         this._initFormButtons();
 
-        const headerText = this.form.querySelector("#modalTypeText");
-        if (headerText) {  // headerText가 null이 아닌지 확인
-            // TODO: StaticText 객체화
-            switch (this.formType) {
-                case 'get':
-                    headerText.textContent = '조회';
-                    break;
-                case 'post':
-                    headerText.textContent = '등록';
-                    break;
-                case 'update':
-                    headerText.textContent = '수정';
-                    const date = this.form.querySelector("#date");
-                    if (date) {
-                        date.setAttribute('readonly', true);
-                        date.addEventListener('keydown', (event) => {
-                            event.preventDefault();
-                        });
-                    }
-                    break;
-            }
-        }
-
+        HeaderByModalType(this.form, this.formType);
         document.querySelectorAll('.onSearchButton').forEach(button => {
-            button.addEventListener("click", async () => { await this._loadSearch(this.currentPage) });
+            button.addEventListener("click", async () => { await this._virtual_loadSearch(this.currentPage) });
         })
-
         document.querySelectorAll(".openWindow").forEach(button => {
             button.addEventListener("click", (event) => { handleOpenWindow(event) });
         });
-
         document.querySelectorAll("[data-pagi]").forEach(button => {
-            button.addEventListener('click', async (event) => { await this._handlePagination(event) });
+            button.addEventListener('click', async (event) => { await this._handlePagination(event.currentTarget.getAttribute('data-pagi')) });
         });
+        document.querySelector('.deleteButton')?.addEventListener('click', async () => { console.log('삭제시작'); await this._handleDeleteSelected(); console.log('삭제완료'); });;
 
-        const deleteButton = document.querySelector('.deleteButton');
-        if (deleteButton) {
-            deleteButton.addEventListener('click', async () => { console.log('삭제시작'); await this._handleDeleteSelected(); console.log('삭제완료'); });
-        }
-
-        // 
-        this._handleSearchFormReset(); // Initialize the form with query data
         this._init_virtual_listenMessage();
-        this._loadSearch(this.currentPage);
     }
 
     _initFormButtons() {
@@ -103,7 +77,7 @@ export class FormManager {
         }
 
         if (this.formType === 'post' || this.formType === 'update') {
-            new Button({ text: '다시작성', onClick: () => this._handleSearchFormReset(), parent: formButtons });
+            new Button({ text: '다시작성', onClick: () => this._virtual_handleSearchFormReset(), parent: formButtons });
         }
 
         // 폼데이터가 있으면 무조건 모달
@@ -118,13 +92,27 @@ export class FormManager {
         window.addEventListener("message", async (event) => {
             // 공통해당 부분.
             if (event.data?.messageType === 'reSearchData') {
-                await this._loadSearch(this.currentPage);
+                await this._virtual_loadSearch(this.currentPage);
             }
         });
     }
 
+    _virtual_getSearchForm() {
+        // TODO : button의 data-id를 다 가져와야함 
+        const formData = new FormData(this.form);
+        const dataObject = {};
+        formData.forEach((value, key) => {
+            dataObject[key] = value;
+        });
+        return dataObject;
+    }
+
+    // --------------------------------
+    // 이벤트 정의부
+    // --------------------------------
+    // Delete
     async _handleDeleteSelected() {
-        const selectedIds = this._getSelectedRowIds();
+        const selectedIds = CheckTableVM.getSelectedRowIds(this.tbody);
         if (selectedIds.length > 0) {
             for (let i = 0; i < selectedIds.length; i++) {
                 await this.dataManager.deleteById(selectedIds[i]);
@@ -133,22 +121,7 @@ export class FormManager {
         } else {
             alert('선택된 항목이 없습니다.');
         }
-        await this._loadSearch(this.currentPage); // Refresh the data
-    }
-
-
-
-
-    // GET
-    _getFormData() {
-        // TODO : button의 data-id를 다 가져와야함 
-        const formData = new FormData(this.form);
-        const dataObject = {};
-        formData.forEach((value, key) => {
-            dataObject[key] = value;
-        });
-
-        return dataObject;
+        await this._virtual_loadSearch(this.currentPage); // Refresh the data
     }
 
     // POST
@@ -161,7 +134,7 @@ export class FormManager {
             return;
         }
 
-        const dataObject = this._getFormData();
+        const dataObject = this._virtual_getSearchForm();
 
         await this.dataManager.appendById(dataObject);
         alert('Data saved to LocalStorage');
@@ -179,7 +152,7 @@ export class FormManager {
             return;
         }
 
-        const dataObject = this._getFormData();
+        const dataObject = this._virtual_getSearchForm();
         if (!dataObject.id) {
             this.defaultData?.id;
         }
@@ -200,18 +173,18 @@ export class FormManager {
 
     // itemInjection
     _handleInject() {
-        if (this._getSelectedRowIds().length === 0) {
+        if (CheckTableVM.getSelectedRowIds(this.tbody).length === 0) {
             alert('체크된 항목이 없습니다.');
             return;
         }
 
-        const ids = this._getSelectedRowIds();
+        const ids = CheckTableVM.getSelectedRowIds(this.tbody);
         const items = ids.map((id) => this.currentMapData.get(id));
         const message = {
             // TODO: 메세지 타입 분할
             messageType: 'set-items',
             items,
-            ids: this._getSelectedRowIds(),
+            ids: CheckTableVM.getSelectedRowIds(this.tbody),
         }
 
         window.opener.postMessage(message, window.location.origin);
@@ -222,7 +195,7 @@ export class FormManager {
 
     // FORM RESET
     // virtual
-    _handleSearchFormReset = () => {
+    _virtual_handleSearchFormReset = () => {
         this.form.querySelectorAll('input').forEach(input => {
             if (input.name && this.defaultData[input.name]) {
                 input.value = this.defaultData[input.name];
@@ -234,8 +207,8 @@ export class FormManager {
     }
 
     // TABLE GET - 주로 마지막에 실행됨
-    async _loadSearch(pageNumber = 1) {
-        const formObject = this._getFormData();
+    async _virtual_loadSearch(pageNumber = 1) {
+        const formObject = this._virtual_getSearchForm();
         const data = await this.dataManager.search(formObject);
         const pagintionedData = this.dataManager.pagintionedData(data, pageNumber);
 
@@ -252,20 +225,10 @@ export class FormManager {
         this._virtual_rowMaker(this.tbody, pagintionedData);
     }
 
-    // 상태변경 = Save Current Rows Data,  using MAP
-    // TODO : DATA 클래스로 넘기기
-    _updateCurrentMapData(data = []) {
-        const currentDataObjcet = new Map();
-        data.forEach((item) => {
-            currentDataObjcet.set(item?.id, { ...item });
-        })
-        return currentDataObjcet;
-    }
 
-
-    // TABLE GET PAGINATION
-    _handlePagination = async (event) => {
-        const direction = parseInt(event.currentTarget.getAttribute('data-pagi'), 10);
+    // TABLE GET PAGINATION, 이벤트에서 얻은 값만큼 '더하는' 함수
+    _handlePagination = async (addNum) => {
+        const direction = parseInt(addNum, 10);
         const loadedData = await this.dataManager.getAll();
         const totalPages = Math.ceil(loadedData.length / this.dataManager.pageSize);
 
@@ -278,12 +241,11 @@ export class FormManager {
             this.currentPage = totalPages
         }
 
-        this._loadSearch(this.currentPage);
-        document.getElementById("currentPage").textContent = this.currentPage;
+        this._virtual_loadSearch(this.currentPage);
         return;
     }
 
-    // TABLE GET PAGINATION
+    // TABLE GET PAGINATION, 인덱스로 이동하는 함수
     _handleIndexPagination = async (index) => {
         const direction = parseInt(index);
         const loadedData = await this.dataManager.getAll();
@@ -298,8 +260,8 @@ export class FormManager {
             this.currentPage = totalPages
         }
 
-        await this._loadSearch(this.currentPage);
-        document.getElementById("currentPage").textContent = this.currentPage;
+        await this._virtual_loadSearch(this.currentPage);
+        // document.getElementById("currentPage").textContent = this.currentPage;
         return;
     }
 
@@ -311,19 +273,17 @@ export class FormManager {
     }
 
     // TABLE GET ID
-    _getSelectedRowIds() {
-        const selectedIds = [];
-        const checkboxes = this.tbody.querySelectorAll('input[type="checkbox"]:checked');
-        console.log(checkboxes);
-        checkboxes.forEach(checkbox => {
-            const row = checkbox.closest('tr');
-            if (row && row.id) {
-                selectedIds.push(row.id);
-            }
-        });
-        console.log(selectedIds);
-        return selectedIds;
-    }
+    // _getSelectedRowIds() {
+    //     const selectedIds = [];
+    //     // TODO 상태관리
+    //     this.tbody.querySelectorAll('input[type="checkbox"]:checked')?.forEach(checkbox => {
+    //         const row = checkbox.closest('tr');
+    //         if (row && row.id) {
+    //             selectedIds.push(row.id);
+    //         }
+    //     });
+    //     return selectedIds;
+    // }
 
     // MESSAGE
     _sendMessage(message = { messageType: 'reSearchData' }) {
@@ -332,7 +292,7 @@ export class FormManager {
 
     // Util
     _validateFormData(requiredKeys = []) {
-        const formData = this._getFormData();
+        const formData = this._virtual_getSearchForm();
         for (let key of requiredKeys) {
             if (formData[key] === undefined || formData[key] === null || formData[key] === '') {
                 return key;

@@ -38,16 +38,12 @@ export class CCheckBox extends AbstractElement {
 
         const checkboxContainer = document.createElement('div');
         checkboxContainer.classList.add("checkbox-container");
-        const background = document.createElement('div');
         const label = document.createElement('label');
         element.id = `checkbox${index}`;
         label.setAttribute('for', `checkbox${index}`);
 
-
         checkboxContainer.appendChild(element);
         element.addEventListener('change', (event) => {
-            const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
-            console.log(checkboxes);
             if (event.target.checked) {
                 element.classList.add("checked");
                 checkboxContainer.classList.add("checked");
@@ -57,18 +53,10 @@ export class CCheckBox extends AbstractElement {
             }
         });
 
-
         checkboxContainer.appendChild(element);
         checkboxContainer.appendChild(label);
-        checkboxContainer.appendChild(background);
         label.textContent = index;
         checkboxContainer.style.position = 'relative';
-        // background.style.position = 'absolute';
-        // background.style.width = '1rem'
-        // background.style.height = '1rem'
-        // background.style.left = '0';
-        // background.style.top = '0';
-        // background.textContent = index;
         parent.appendChild(checkboxContainer);
         return this;
     }
