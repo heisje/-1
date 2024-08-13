@@ -3,8 +3,8 @@ import { useQuery } from '../customhook/useQuery.js';
 import { Data } from '../data/data.js';
 import { ItemVM } from '../ViewModel/ItemVM.js';
 import { CheckTableVM } from '../ViewModel/CheckTableVM.js';
-import { OItemTableUI } from '../ObservingUI/OItemTable.js';
-import { OCurrentData } from '../ObservingUI/OState.js';
+import { OItemTableUI } from '../ObservingUI/Table/OItemTable.js';
+import { OTableState } from '../ObservingUI/OState.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const queryData = useQuery();
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     const itemTable = new OItemTableUI();
-    OCurrentData.register(itemTable);
+    OTableState.register(itemTable);
 
     new ItemVM(formType, dataManager, defaultData, 10);
     new CheckTableVM();

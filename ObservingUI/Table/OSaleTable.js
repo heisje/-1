@@ -1,7 +1,7 @@
-import { CCheckBox } from "../components/CheckBox.js";
-import { Cell, OpenButton } from "../components/Td.js";
-import { Data } from "../data/data.js";
-import { handleOpenWindow } from "../modal/handleOpenWindow.js";
+import { CCheckBox } from "../../components/CheckBox.js";
+import { Cell, OpenButton } from "../../components/Td.js";
+import { Data } from "../../data/data.js";
+import { handleOpenWindow } from "../../modal/handleOpenWindow.js";
 
 export class OSaleTableUI {
     update(object) {

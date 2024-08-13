@@ -3,8 +3,8 @@ import { useQuery } from "../customhook/useQuery.js";
 import { Data } from "../data/data.js";
 import { SaleVM } from "../ViewModel/SaleVM.js";
 import { CheckTableVM } from '../ViewModel/CheckTableVM.js';
-import { OCurrentData } from "../ObservingUI/OState.js";
-import { OSaleTableUI } from "../ObservingUI/OSaleTable.js";
+import { OTableState } from "../ObservingUI/OState.js";
+import { OSaleTableUI } from "../ObservingUI/Table/OSaleTable.js";
 
 document.addEventListener('DOMContentLoaded', async () => {
     const queryData = useQuery();
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const defaultData = queryId ? await dataManager.getById(queryId) : {};
 
     const tableUi = new OSaleTableUI();
-    OCurrentData.register(tableUi);
+    OTableState.register(tableUi);
 
     new SaleVM(formType, dataManager, defaultData, 10);
 

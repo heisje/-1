@@ -5,7 +5,7 @@ import { arrayToMap } from "../util/arrayToMap.js";
 import { handleOpenWindow } from "../modal/handleOpenWindow.js";
 import { HeaderByModalType } from "../components/HeaderText.js";
 import { CheckTableVM } from "./CheckTableVM.js";
-import { OCurrentData } from "../ObservingUI/OState.js";
+import { OTableState } from "../ObservingUI/OState.js";
 
 
 // 행위대리자
@@ -21,14 +21,14 @@ export class FormVM {
         this.defaultData = defaultData;     // 초기데이터
 
         // 현재 데이터
-        // 현재 데이터를 저장한 이유: 잦은 참조가 필요하다. 
-        // html에 data-로 데이터를 저장할 수는 있지만, 잦은 DOM API호출은 성능상 이점이 없다 생각된다. 
+        // - 잦은 참조가 필요하다. 
         //    // 그래서 ID를 ROW마다 참조해두고, 현재데이터에서 뽑아 쓰는 방식으로 구현
         //    // Index참조(단순 그리기)와 Hash ID참조가 필요하기 때매 Map으로 구현
-        // TODO: 데이터 참조 시작점을 이 객체로 변경
+        // 
+        // TODO: currentMapData를 OTableState로 모두 변경
         this.currentMapData = defaultData ?? new Map();     // 현재 데이터
         if (this.currentMapData.size > 0) {
-            OCurrentData.update(this.currentMapData);
+            OTableState.update(this.currentMapData);
         }
 
         this._initMapping();
@@ -102,7 +102,6 @@ export class FormVM {
     }
 
     _virtual_getSearchForm() {
-        // TODO : button의 data-id를 다 가져와야함 
         const formData = new FormData(this.form);
         const dataObject = {};
         formData.forEach((value, key) => {
@@ -224,8 +223,7 @@ export class FormVM {
         );
 
         this.currentMapData = arrayToMap(pagintionedData?.items);
-        OCurrentData.update(this.currentMapData);
-        // this._virtual_rowMaker(this.tbody, pagintionedData);
+        OTableState.update(this.currentMapData);
     }
 
 
@@ -267,26 +265,6 @@ export class FormVM {
         // document.getElementById("currentPage").textContent = this.currentPage;
         return;
     }
-
-
-
-    // CREATE ROW 자식컴포넌트에서 구현
-    _virtual_rowMaker(parent, data) {
-        // 자식에서 구현
-    }
-
-    // TABLE GET ID
-    // _getSelectedRowIds() {
-    //     const selectedIds = [];
-    //     // TODO 상태관리
-    //     this.tbody.querySelectorAll('input[type="checkbox"]:checked')?.forEach(checkbox => {
-    //         const row = checkbox.closest('tr');
-    //         if (row && row.id) {
-    //             selectedIds.push(row.id);
-    //         }
-    //     });
-    //     return selectedIds;
-    // }
 
     // MESSAGE
     _sendMessage(message = { messageType: 'reSearchData' }) {

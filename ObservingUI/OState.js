@@ -19,4 +19,5 @@ class OState extends Observable {
     }
 }
 
-export const OCurrentData = new OState();
+// 1개의 객체 데이터당 1개의 export
+export const OTableState = new OState();

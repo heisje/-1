@@ -1,9 +1,9 @@
-import { CCheckBox } from "../components/CheckBox.js";
-import { Button } from "../components/common/Button.js";
-import { Cell, OpenButton, Td } from "../components/Td.js";
-import { useQuery } from "../customhook/useQuery.js";
-import { handleOpenWindow } from "../modal/handleOpenWindow.js";
-import CheckBoxState from "../state/checkBoxState.js";
+import { CCheckBox } from "../../components/CheckBox.js";
+import { Button } from "../../components/common/Button.js";
+import { Cell, OpenButton, Td } from "../../components/Td.js";
+import { useQuery } from "../../customhook/useQuery.js";
+import { handleOpenWindow } from "../../modal/handleOpenWindow.js";
+import CheckBoxState from "../../state/checkBoxState.js";
 
 export class OItemTableUI {
     update(object) {

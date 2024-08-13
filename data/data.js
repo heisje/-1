@@ -123,9 +123,7 @@ export class Data {
                 const [count, price] = itemString.split(':');
                 return { date: data.date, item: data.item, count, price, description: data.description, id: data.id };
             });
-            // data.item.map(itemId => {
-            //     return { date: data.date, item: data.item, count, price, description: data.description, id: data.id }
-            // })
+
             return itemArray.some(itemData => {
                 const matchesStartDate = !start_date || new Date(itemData.date) >= new Date(start_date);
                 const matchesEndDate = !end_date || new Date(itemData.date) <= new Date(end_date);

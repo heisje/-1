@@ -1,5 +1,4 @@
 import { Button } from '../components/common/Button.js';
-import { ItemTableRow } from '../components/ItemTableRow.js';
 import { FormVM } from './FormVM.js';
 
 export class ItemVM extends FormVM {
@@ -25,8 +24,4 @@ export class ItemVM extends FormVM {
         super._initFormButtons();
     }
 
-    // override 행 생성
-    _virtual_rowMaker(parent, data) {
-        ItemTableRow({ parent, data, currentMapData: this.currentMapData });
-    }
 }
