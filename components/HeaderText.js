@@ -1,5 +1,6 @@
 export function HeaderByModalType(form, formType) {
-    const headerText = form.querySelector("#modalTypeText");
+    const headerText = document.getElementById("modalTypeText");
+
     if (headerText) {  // headerText가 null이 아닌지 확인
         // TODO: StaticText 객체화
         switch (formType) {

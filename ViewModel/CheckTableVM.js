@@ -24,7 +24,6 @@ export class CheckTableVM {
 
     static getSelectedRowIds(htmlElement) {
         const selectedIds = [];
-        // TODO 상태관리
         htmlElement.querySelectorAll('input[type="checkbox"]:checked')?.forEach(checkbox => {
             const row = checkbox.closest('tr');
             if (row && row.id) {

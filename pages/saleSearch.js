@@ -3,8 +3,9 @@ import { useQuery } from "../customhook/useQuery.js";
 import { Data } from "../data/data.js";
 import { SaleVM } from "../ViewModel/SaleVM.js";
 import { CheckTableVM } from '../ViewModel/CheckTableVM.js';
-import { OTableState } from "../ObservingUI/OState.js";
-import { OSaleTableUI } from "../ObservingUI/Table/OSaleTable.js";
+import { OPageState, OTableState } from "../ObservingUI/OState.js";
+import { OSaleTableUI } from "../ObservingUI/Table/OSaleTableUI.js";
+import { OPaginationUI } from "../ObservingUI/Pagination/OPaginationUI.js";
 
 document.addEventListener('DOMContentLoaded', async () => {
     const queryData = useQuery();
@@ -12,10 +13,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const dataManager = new Data('sales');
     const queryId = queryData?.id;
-    const defaultData = queryId ? await dataManager.getById(queryId) : {};
+    const defaultData = queryId ? await dataManager.getById(queryId) : new Map();
 
+    // Model View 1:1 매칭
     const tableUi = new OSaleTableUI();
     OTableState.register(tableUi);
+    const paginationUi = new OPaginationUI();
+    OPageState.register(paginationUi);
 
     new SaleVM(formType, dataManager, defaultData, 10);
 

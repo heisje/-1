@@ -1,4 +1,4 @@
-import { CCheckBox } from "../../components/CheckBox.js";
+import { CheckBox } from "../../components/CheckBox.js";
 import { Cell, OpenButton } from "../../components/Td.js";
 import { Data } from "../../data/data.js";
 import { handleOpenWindow } from "../../modal/handleOpenWindow.js";
@@ -14,14 +14,14 @@ export class OSaleTableUI {
         console.log('inner', data, data.size);
         try {
             let index = 0;
-            for (const [key, item] of data.entries()) {
+            for (const [_, item] of data.entries()) {
                 console.log('item', item);
                 const row = document.createElement('tr');
                 row.setAttribute('id', item?.id); // id 할당
 
                 // 체크박스 셀 생성
                 const checkboxTd = document.createElement('td');
-                new CCheckBox({
+                new CheckBox({
                     onClick: (event) => {
                         const parrentCheckBox = document.getElementById('table-parrent-checkbox');
                         if (!event.target.checked) {

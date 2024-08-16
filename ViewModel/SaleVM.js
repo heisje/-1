@@ -1,6 +1,5 @@
 import { Button } from '../components/common/Button.js';
-import { Pagination } from '../components/Pagination.js';
-import { OTableState } from '../ObservingUI/OState.js';
+import { OPageState, OTableState } from '../ObservingUI/OState.js';
 import { arrayToMap } from '../util/arrayToMap.js';
 import { FormVM } from './FormVM.js';
 
@@ -119,20 +118,18 @@ export class SaleVM extends FormVM {
         // 기존 데이터 삭제
         if (!this.tbody) return;
         this.tbody.innerHTML = '';
-        Pagination(pagintionedData?.currentPage, pagintionedData?.totalPage,
-            async (index) => {
+        OPageState.update({
+            currentPage: pagintionedData?.currentPage,
+            totalPages: pagintionedData?.totalPage,
+            onClickEvent: async (index) => {
                 await this._handleIndexPagination(index.target.textContent);
             }
-        );
-        this.currentMapData = arrayToMap(pagintionedData?.items);
-        OTableState.update(this.currentMapData);
-        console.log('생성됨', this.currentMapData, pagintionedData);
+        })
+        OTableState.update(arrayToMap(pagintionedData?.items));
     }
 
     _virtual_handleSearchFormReset() {
         console.log(this.defaultData);
         super._virtual_handleSearchFormReset();
     }
-
-
 }

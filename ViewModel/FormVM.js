@@ -1,11 +1,10 @@
 import { Button } from "../components/common/Button.js";
 import { Data } from "../data/data.js";
-import { Pagination } from "../components/Pagination.js";
 import { arrayToMap } from "../util/arrayToMap.js";
 import { handleOpenWindow } from "../modal/handleOpenWindow.js";
 import { HeaderByModalType } from "../components/HeaderText.js";
 import { CheckTableVM } from "./CheckTableVM.js";
-import { OTableState } from "../ObservingUI/OState.js";
+import { OPageState, OTableState } from "../ObservingUI/OState.js";
 
 
 // 행위대리자
@@ -25,11 +24,7 @@ export class FormVM {
         //    // 그래서 ID를 ROW마다 참조해두고, 현재데이터에서 뽑아 쓰는 방식으로 구현
         //    // Index참조(단순 그리기)와 Hash ID참조가 필요하기 때매 Map으로 구현
         // 
-        // TODO: currentMapData를 OTableState로 모두 변경
-        this.currentMapData = defaultData ?? new Map();     // 현재 데이터
-        if (this.currentMapData.size > 0) {
-            OTableState.update(this.currentMapData);
-        }
+        OTableState.update(defaultData ?? new Map());
 
         this._initMapping();
         this._virtual_handleSearchFormReset(); // Initialize the form with query data
@@ -99,15 +94,6 @@ export class FormVM {
                 await this._virtual_loadSearch(this.currentPage);
             }
         });
-    }
-
-    _virtual_getSearchForm() {
-        const formData = new FormData(this.form);
-        const dataObject = {};
-        formData.forEach((value, key) => {
-            dataObject[key] = value;
-        });
-        return dataObject;
     }
 
     // --------------------------------
@@ -182,7 +168,12 @@ export class FormVM {
         }
 
         const ids = CheckTableVM.getSelectedRowIds(this.tbody);
-        const items = ids.map((id) => this.currentMapData.get(id));
+        const items = ids.map((id) => {
+            console.log(OTableState.getState().get(id));
+
+            return OTableState.getState().get(id)
+        });
+        alert();
         const message = {
             // TODO: 메세지 타입 분할
             messageType: 'set-items',
@@ -216,14 +207,16 @@ export class FormVM {
         if (!this.tbody) return;
         this.tbody.innerHTML = ''; // 기존 데이터 삭제
 
-        Pagination(pagintionedData?.currentPage, pagintionedData?.totalPage,
-            async (index) => {
+        OPageState.update({
+            currentPage: pagintionedData?.currentPage,
+            totalPages: pagintionedData?.totalPage,
+            onClickEvent: async (index) => {
                 await this._handleIndexPagination(index.target.textContent);
             }
-        );
+        })
 
-        this.currentMapData = arrayToMap(pagintionedData?.items);
-        OTableState.update(this.currentMapData);
+        OTableState.update(arrayToMap(pagintionedData?.items));
+
     }
 
 
@@ -262,7 +255,6 @@ export class FormVM {
         }
 
         await this._virtual_loadSearch(this.currentPage);
-        // document.getElementById("currentPage").textContent = this.currentPage;
         return;
     }
 
@@ -280,5 +272,15 @@ export class FormVM {
             }
         }
         return true;
+    }
+
+
+    _virtual_getSearchForm() {
+        const formData = new FormData(this.form);
+        const dataObject = {};
+        formData.forEach((value, key) => {
+            dataObject[key] = value;
+        });
+        return dataObject;
     }
 }

@@ -1,6 +1,6 @@
 import { AbstractElement } from "./AbstractElement.js";
 
-export class CCheckBox extends AbstractElement {
+export class CheckBox extends AbstractElement {
     constructor(options) {
         const checkbox = document.createElement("input");
 
