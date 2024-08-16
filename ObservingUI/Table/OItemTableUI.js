@@ -1,9 +1,9 @@
-import { CCheckBox } from "../components/CheckBox.js";
-import { Button } from "../components/common/Button.js";
-import { Cell, OpenButton, Td } from "../components/Td.js";
-import { useQuery } from "../customhook/useQuery.js";
-import { handleOpenWindow } from "../modal/handleOpenWindow.js";
-import CheckBoxState from "../state/checkBoxState.js";
+import { CheckBox } from "../../components/CheckBox.js";
+import { Button } from "../../components/common/Button.js";
+import { Cell, OpenButton, Td } from "../../components/Td.js";
+import { useQuery } from "../../customhook/useQuery.js";
+import { handleOpenWindow } from "../../modal/handleOpenWindow.js";
+import CheckBoxState from "../../state/checkBoxState.js";
 
 export class OItemTableUI {
     update(object) {
@@ -13,22 +13,22 @@ export class OItemTableUI {
     }
 
     async render({ parent, data }) {
-        if (data.size < 0) {
+        if (data.size <= 0) {
             return;
         }
+
         CheckBoxState.changeKeyState({ selectedIds: new Set() });
         const checkedCount = useQuery()?.['get-count'];
         const modalType = useQuery()?.['modal-type'];
 
         let index = 0;
-        console.log('itemMap', data);
         for (const [key, item] of data.entries()) {
             const row = document.createElement('tr');
             row.setAttribute('id', item?.id); // id 할당
 
             // 체크박스 셀 생성
             const checkboxTd = document.createElement('td');
-            new CCheckBox({
+            new CheckBox({
                 onClick: (event) => {
                     const parrentCheckBox = document.getElementById('table-parrent-checkbox');
                     if (!event.target.checked) {

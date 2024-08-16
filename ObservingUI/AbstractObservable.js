@@ -1,5 +1,5 @@
 
-export class Observable {
+export class AbstractObservable {
     constructor() {
         this._observers = [];
     }
@@ -13,6 +13,10 @@ export class Observable {
         return this._state;
     }
 
+    getState() {
+        return this._state;
+    }
+
     register(observer) {
         this._observers.push(observer);
     }
@@ -22,10 +26,6 @@ export class Observable {
     }
 
     notify(data) {
-        console.log('noti', data);
-        console.log('_observers', this._observers);
         this._observers.forEach(observer => observer.update(data));
     }
-
-
 }

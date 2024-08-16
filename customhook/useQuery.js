@@ -1,5 +1,5 @@
 
-// queryUtils.js
+// 1회성이라 즉시 실행 후 캐싱
 export const useQuery = (() => {
     let cachedParams = null;
 

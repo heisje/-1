@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 데이터
     const dataManager = new Data('sales');
     const queryId = queryData?.id;
-    const defaultData = queryId ? await dataManager.getById(queryId) : {};
+    const defaultData = queryId ? await dataManager.getById(queryId) : new Map();
 
     new SaleVM(formType, dataManager, defaultData, 10);
 });
