@@ -1,4 +1,4 @@
-export function HeaderByModalType(form, formType) {
+export function HeaderByModalType(formType) {
     const headerText = document.getElementById("modalTypeText");
 
     if (headerText) {  // headerText가 null이 아닌지 확인
@@ -12,7 +12,7 @@ export function HeaderByModalType(form, formType) {
                 break;
             case 'update':
                 headerText.textContent = '수정';
-                const date = form.querySelector("#date");
+                const date = document.getElementById('dataForm').querySelector("#date");
                 if (date) {
                     date.setAttribute('readonly', true);
                     date.addEventListener('keydown', (event) => {

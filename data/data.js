@@ -25,7 +25,18 @@ export class Data {
         const existingData = await this.getAll();
         const item = existingData.find(item => item.id === id);
         if (!item) {
-            throw new Error("Item not found");
+            return {
+                "id": "1",
+                "name": "1",
+                "date": "1111-11-11",
+                "item": "1",
+                "count": "1",
+                "price": "1",
+                "description": "1",
+                "itemIds": [
+                    "1"
+                ]
+            };
         }
         return item;
     }
