@@ -1,6 +1,6 @@
 // OPEN NEW MODAL
 
-import { queryObjectToURL } from "../util/query.js";
+import { queryObjectToURL } from "../Utils/query.js";
 import { Modal } from "./modal.js";
 
 // Window Open을 위해 데이터를 수집-모달로 전달하는 함수

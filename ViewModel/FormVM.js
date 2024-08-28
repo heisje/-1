@@ -1,10 +1,11 @@
 import { Button } from "../components/common/Button.js";
 import { Data } from "../data/data.js";
-import { arrayToMap } from "../util/arrayToMap.js";
+import { arrayToMap } from "../Utils/arrayToMap.js";
 import { handleOpenWindow } from "../modal/handleOpenWindow.js";
 import { HeaderByModalType } from "../components/HeaderText.js";
 import { CheckTableVM } from "./CheckTableVM.js";
 import { OPageState, OTableState } from "../ObservingUI/OState.js";
+import { SendMessage } from "../Events/Message.js";
 
 
 // 행위대리자
@@ -131,7 +132,7 @@ export class FormVM {
 
         await this.dataManager.appendById(dataObject);
         alert('Data saved to LocalStorage');
-        this._sendMessage({ messageType: 'reSearchData' });
+        SendMessage({ messageType: 'reSearchData' });
         window.close();
     }
 
@@ -152,7 +153,7 @@ export class FormVM {
         await this.dataManager.update(this.defaultData?.id, dataObject);
 
         alert('Data updated in LocalStorage');
-        this._sendMessage({ messageType: 'reSearchData' });
+        SendMessage({ messageType: 'reSearchData' });
         window.close();
     }
 
@@ -160,7 +161,7 @@ export class FormVM {
     _handleDelete = async () => {
         await this.dataManager.deleteById(this.defaultData?.id);
         alert(`${this.defaultData?.id}가 삭제되었습니다.`)
-        this._sendMessage({ messageType: 'reSearchData' });
+        SendMessage({ messageType: 'reSearchData' });
         window.close();
     }
 
@@ -266,11 +267,6 @@ export class FormVM {
         this.currentPage = currentPage;
         await this._virtual_loadSearch(this.currentPage);
         return;
-    }
-
-    // MESSAGE
-    _sendMessage(message = { messageType: 'reSearchData' }) {
-        window.opener.postMessage(message, window.location.origin);
     }
 
     // Util

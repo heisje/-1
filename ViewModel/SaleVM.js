@@ -1,6 +1,6 @@
 import { Button } from '../components/common/Button.js';
 import { OPageState, OTableState } from '../ObservingUI/OState.js';
-import { arrayToMap } from '../util/arrayToMap.js';
+import { arrayToMap } from '../Utils/arrayToMap.js';
 import { FormVM } from './FormVM.js';
 
 export class SaleVM extends FormVM {
