@@ -3,6 +3,14 @@ export class Data {
     constructor(localStorageKey, pageSize = 10) {
         this.localStorageKey = localStorageKey;
         this.pageSize = pageSize;
+        switch (localStorageKey) {
+            case "item":
+                this.search = this.searchProduct;
+                break;
+            case "sales":
+                this.search = this.searchSalesData;
+                break;
+        }
     }
 
     // 임시 ID
@@ -89,22 +97,8 @@ export class Data {
         await this.saveAll(existingData);
     }
 
-    async search(criteria) {
-        const existingData = await this.getAll();
-        if (!Array.isArray(existingData)) {
-            throw new Error("Existing data is not an array");
-        }
-        const { id, name } = criteria;
 
-        const result = existingData.filter(data => {
-            const matchesId = !id || data.id.includes(id);
-            const matchesName = !name || data.name.includes(name);
 
-            return matchesId && matchesName;
-        });
-
-        return result;
-    }
 
     pagintionedData(totalData, currentPage = 1) {
         const totalPage = Math.ceil(totalData.length / this.pageSize);
@@ -119,6 +113,23 @@ export class Data {
             totalPage: totalPage,
             items: totalData.slice(startIndex, endIndex)
         };
+        return result;
+    }
+
+    async searchProduct(criteria) {
+        const existingData = await this.getAll();
+        if (!Array.isArray(existingData)) {
+            throw new Error("Existing data is not an array");
+        }
+        const { id, name } = criteria;
+
+        const result = existingData.filter(data => {
+            const matchesId = !id || data.id.includes(id);
+            const matchesName = !name || data.name.includes(name);
+
+            return matchesId && matchesName;
+        });
+
         return result;
     }
 

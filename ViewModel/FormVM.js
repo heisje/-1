@@ -22,11 +22,14 @@ export class FormVM {
         //    // Index참조(단순 그리기)와 Hash ID참조가 필요하기 때매 Map으로 구현
         // 
         OTableState.update(defaultData ?? new Map());
-
+        this._virtual_funcMapping();
         this._initMapping();
         this._virtual_handleSearchFormReset(); // Initialize the form with query data
-
         this._pagiManager();
+    }
+
+    _virtual_funcMapping() {
+        this.GetSearchForm = GetProductSearchForm;
     }
 
     _pagiManager() {
@@ -128,7 +131,7 @@ export class FormVM {
             return;
         }
 
-        const dataObject = this._virtual_getSearchForm();
+        const dataObject = this.GetSearchForm();
 
         await this.dataManager.appendById(dataObject);
         alert('Data saved to LocalStorage');
@@ -146,7 +149,7 @@ export class FormVM {
             return;
         }
 
-        const dataObject = this._virtual_getSearchForm();
+        const dataObject = this.GetSearchForm();
         if (!dataObject.id) {
             this.defaultData?.id;
         }
@@ -207,7 +210,7 @@ export class FormVM {
     // TABLE GET - 주로 마지막에 실행됨
     async _virtual_loadSearch(pageNumber = 1) {
         console.log('페이지로드');
-        const formObject = this._virtual_getSearchForm();
+        const formObject = this.GetSearchForm();
         const data = await this.dataManager.search(formObject);
         const pagintionedData = this.dataManager.pagintionedData(data, pageNumber);
         const targetTable = document.getElementById('table-body');
@@ -271,7 +274,7 @@ export class FormVM {
 
     // Util
     _validateFormData(requiredKeys = []) {
-        const formData = this._virtual_getSearchForm();
+        const formData = this.GetSearchForm();
         for (let key of requiredKeys) {
             if (formData[key] === undefined || formData[key] === null || formData[key] === '') {
                 return key;
@@ -281,12 +284,51 @@ export class FormVM {
     }
 
 
-    _virtual_getSearchForm() {
-        const formData = new FormData(document.getElementById('dataForm'));
-        const dataObject = {};
-        formData.forEach((value, key) => {
-            dataObject[key] = value;
+
+}
+
+// 물품을 search-items에 넣어주는 함수
+export function SetItems({ items }) {
+    const container = document.getElementById('search-items');
+    container.innerHTML = ''; // 기존 내용을 비웁니다.
+    items.forEach((item) => {
+        const button = new Button({
+            text: `${item?.id}(${item?.name})`, parent: container,
+            attributes: [{ qualifiedName: 'data-id', value: item?.id }],
         });
-        return dataObject;
-    }
+        button.addRemoveEventListener();
+
+        // button.addEventListener('click', () => { button.remove() });
+        const itemInput = document.getElementById('item');
+        if (itemInput) {
+            itemInput.value = items?.[0]?.id
+        }
+        const priceInput = document.getElementById('price');
+        if (priceInput) {
+            priceInput.value = items?.[0]?.price
+        }
+    })
+
+}
+
+export function GetProductSearchForm() {
+    const formData = new FormData(document.getElementById('dataForm'));
+    const dataObject = {};
+    formData.forEach((value, key) => {
+        dataObject[key] = value;
+    });
+    return dataObject;
+}
+
+export function NewOpenWindowButton(targetHtml) {
+    new Button({
+        text: '신규',
+        classes: ['primary-button', 'openWindow'],
+        onClick: null,
+        parent: formButtons,
+        attributes: [
+            { qualifiedName: 'data-href', value: targetHtml },
+            { qualifiedName: 'data-query-modal-type', value: 'post' }
+        ]
+    });
 }
