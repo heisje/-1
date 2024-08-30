@@ -1,15 +1,17 @@
+import { SaleApi } from '../Api/SaleAPI.js';
 import { Button } from '../components/common/Button.js';
 import { OPageState, OTableState } from '../ObservingUI/OState.js';
 import { arrayToMap } from '../Utils/arrayToMap.js';
-import { FormVM, NewOpenWindowButton, SetItems } from './FormVM.js';
+import { FormVM, NewOpenWindowButton } from './FormVM.js';
 
 export class SaleVM extends FormVM {
     constructor(formType, dataManager, defaultData, pageSize = 10) {
         super(formType, dataManager, defaultData, pageSize);
     }
 
-    _virtual_funcMapping() {
+    _abstract_funcMapping() {
         this.GetSearchForm = GetSaleSearchForm;
+        this.Api = SaleApi;
     }
 
     // override
@@ -21,8 +23,8 @@ export class SaleVM extends FormVM {
         super._initFormButtons();
     }
 
-    _init_virtual_listenMessage() {
-        super._init_virtual_listenMessage();
+    _init_listenMessage() {
+        super._init_listenMessage();
         window.addEventListener("message", (event) => {
             if (event.data?.messageType === 'set-items') {
                 SetItems({ items: event.data?.items });
@@ -52,6 +54,7 @@ export class SaleVM extends FormVM {
 }
 
 // GET
+// 폼의 내용 To Objects
 export function GetSaleSearchForm() {
     const items = document.getElementById('search-items');
     const buttons = items.querySelectorAll('button');
@@ -67,6 +70,7 @@ export function GetSaleSearchForm() {
     return dataObject;
 }
 
+// Product 를 받아오는 input
 function ProductGetInput() {
     const searchInput = document.getElementById('item');
     const searchIcon = document.getElementById('searchIcon');
@@ -99,4 +103,28 @@ function ProductGetInput() {
             }
         });
     }
+}
+
+// 물품을 search-items에 넣어주는 함수
+export function SetItems({ items }) {
+    const container = document.getElementById('search-items');
+    container.innerHTML = ''; // 기존 내용을 비웁니다.
+    items.forEach((item) => {
+        const button = new Button({
+            text: `${item?.id}(${item?.name})`, parent: container,
+            attributes: [{ qualifiedName: 'data-id', value: item?.id }],
+        });
+        button.addRemoveEventListener();
+
+        // button.addEventListener('click', () => { button.remove() });
+        const itemInput = document.getElementById('item');
+        if (itemInput) {
+            itemInput.value = items?.[0]?.id
+        }
+        const priceInput = document.getElementById('price');
+        if (priceInput) {
+            priceInput.value = items?.[0]?.price
+        }
+    })
+
 }

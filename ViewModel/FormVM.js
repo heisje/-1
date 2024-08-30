@@ -6,6 +6,7 @@ import { HeaderByModalType } from "../components/HeaderText.js";
 import { CheckTableVM } from "./CheckTableVM.js";
 import { OPageState, OTableState } from "../ObservingUI/OState.js";
 import { SendMessage } from "../Events/Message.js";
+import { ProductApi } from "../Api/ProductAPI.js";
 
 
 // 행위대리자
@@ -20,22 +21,17 @@ export class FormVM {
         // - 잦은 참조가 필요하다. 
         //    // 그래서 ID를 ROW마다 참조해두고, 현재데이터에서 뽑아 쓰는 방식으로 구현
         //    // Index참조(단순 그리기)와 Hash ID참조가 필요하기 때매 Map으로 구현
-        // 
         OTableState.update(defaultData ?? new Map());
-        this._virtual_funcMapping();
+        this._abstract_funcMapping();
         this._initMapping();
         this._virtual_handleSearchFormReset(); // Initialize the form with query data
-        this._pagiManager();
-    }
-
-    _virtual_funcMapping() {
-        this.GetSearchForm = GetProductSearchForm;
-    }
-
-    _pagiManager() {
         this.currentPage = 1;               // 현재 페이지
         this._virtual_loadSearch(this.currentPage);
+    }
 
+    _abstract_funcMapping() {
+        this.GetSearchForm; // TODO
+        this.Api = ProductApi;
     }
 
 
@@ -55,7 +51,7 @@ export class FormVM {
         });
         document.querySelector('.deleteButton')?.addEventListener('click', async () => { console.log('삭제시작'); await this._handleDeleteSelected(); console.log('삭제완료'); });;
 
-        this._init_virtual_listenMessage();
+        this._init_listenMessage();
     }
 
     _initFormButtons() {
@@ -95,7 +91,7 @@ export class FormVM {
     }
 
     // 이벤트 송신부. override사용 중
-    _init_virtual_listenMessage() {
+    _init_listenMessage() {
         window.addEventListener("message", async (event) => {
             // 공통해당 부분.
             if (event.data?.messageType === 'reSearchData') {
@@ -285,39 +281,6 @@ export class FormVM {
 
 
 
-}
-
-// 물품을 search-items에 넣어주는 함수
-export function SetItems({ items }) {
-    const container = document.getElementById('search-items');
-    container.innerHTML = ''; // 기존 내용을 비웁니다.
-    items.forEach((item) => {
-        const button = new Button({
-            text: `${item?.id}(${item?.name})`, parent: container,
-            attributes: [{ qualifiedName: 'data-id', value: item?.id }],
-        });
-        button.addRemoveEventListener();
-
-        // button.addEventListener('click', () => { button.remove() });
-        const itemInput = document.getElementById('item');
-        if (itemInput) {
-            itemInput.value = items?.[0]?.id
-        }
-        const priceInput = document.getElementById('price');
-        if (priceInput) {
-            priceInput.value = items?.[0]?.price
-        }
-    })
-
-}
-
-export function GetProductSearchForm() {
-    const formData = new FormData(document.getElementById('dataForm'));
-    const dataObject = {};
-    formData.forEach((value, key) => {
-        dataObject[key] = value;
-    });
-    return dataObject;
 }
 
 export function NewOpenWindowButton(targetHtml) {

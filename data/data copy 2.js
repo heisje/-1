@@ -1,24 +1,31 @@
-import { ProductApi } from "../Api/ProductAPI.js";
-import { SaleApi } from "../Api/SaleAPI.js";
-import { OPageState } from "../ObservingUI/OState.js";
-
-// 연동 관리
 export class Data {
 
-    constructor(Entity, pageSize = 10) {
-        this.Entity = Entity;
+    constructor(localStorageKey, pageSize = 10) {
+        this.localStorageKey = localStorageKey;
         this.pageSize = pageSize;
-        this.Api = ProductApi;
-        switch (Entity) {
+        switch (localStorageKey) {
             case "item":
                 this.search = this.searchProduct;
-                this.Api = ProductApi;
                 break;
             case "sales":
                 this.search = this.searchSalesData;
-                this.Api = SaleApi;
                 break;
         }
+    }
+
+    // 임시 ID
+    generateUUID() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            const r = (crypto.getRandomValues(new Uint8Array(1))[0] & 0x0f) | 0x40;
+            const v = c === 'x' ? r : (r & 0x3f) | 0x80;
+            return v.toString(16);
+        });
+    }
+
+    // GET
+    async getAll() {
+        const jsonData = localStorage.getItem(this.localStorageKey);
+        return jsonData ? JSON.parse(jsonData) : [];
     }
 
     // GET
@@ -43,25 +50,24 @@ export class Data {
     }
 
     // POST
-    async appendById(insertItem) {
-        await this.Api.Insert({ insertItem });
-
-        // 기존코드
-        if (!insertItem.id || insertItem.id === '') {
-            insertItem.id = this.generateUUID();
+    async appendById(item) {
+        if (!item.id || item.id === '') {
+            item.id = this.generateUUID();
         }
+
         const existingData = await this.getAll();
-        existingData.push(insertItem);
+        existingData.push(item);
         await this.saveAll(existingData);
     }
 
-
+    // UTIL POST
+    async saveAll(existingData) {
+        const jsonData = JSON.stringify(existingData);
+        localStorage.setItem(this.localStorageKey, jsonData);
+    }
 
     // UPDATE
-    async update(id, updateItem) {
-        await this.Api.Update({ updateItem });
-
-        // 기존 코드
+    async update(id, updatedData) {
         const existingData = await this.getAll();
         if (!Array.isArray(existingData)) {
             throw new Error("Existing data is not an array");
@@ -70,10 +76,10 @@ export class Data {
         const index = existingData.findIndex(item => item.id === id);
         if (index !== -1) {
             // 아이디가 문제야 문제
-            if (!updateItem.id) {
-                updateItem.id = id;
+            if (!updatedData.id) {
+                updatedData.id = id;
             }
-            existingData[index] = { ...updateItem };
+            existingData[index] = { ...updatedData };
             await this.saveAll(existingData);
         } else {
             throw new Error("Item not found");
@@ -81,23 +87,36 @@ export class Data {
     }
 
     // DELETE
-    async deleteById(deleteKey) {
-        await this.Api.Delete({ deleteKey });
-
-        // 기존 코드
+    async deleteById(id) {
         let existingData = await this.getAll();
         if (!Array.isArray(existingData)) {
             throw new Error("Existing data is not an array");
         }
 
-        existingData = existingData.filter(item => item.id !== deleteKey);
+        existingData = existingData.filter(item => item.id !== id);
         await this.saveAll(existingData);
     }
 
-    async searchProduct(criteria) {
-        criteria.currentPage = OPageState?.getState()?.currentPage ?? 1;
-        await this.Api.Search({ criteria });
 
+
+
+    pagintionedData(totalData, currentPage = 1) {
+        const totalPage = Math.ceil(totalData.length / this.pageSize);
+        if (currentPage < 1) currentPage = 1;
+        if (currentPage > totalPage) currentPage = totalPage;
+
+        const startIndex = (currentPage - 1) * this.pageSize;
+        const endIndex = startIndex + this.pageSize;
+
+        const result = {
+            currentPage: currentPage,
+            totalPage: totalPage,
+            items: totalData.slice(startIndex, endIndex)
+        };
+        return result;
+    }
+
+    async searchProduct(criteria) {
         const existingData = await this.getAll();
         if (!Array.isArray(existingData)) {
             throw new Error("Existing data is not an array");
@@ -139,45 +158,5 @@ export class Data {
         });
 
         return result;
-    }
-
-    // -------------------------------
-    // JS만을 위한 함수
-    // --------------------------------
-    // UTIL POST
-    async saveAll(existingData) {
-        const jsonData = JSON.stringify(existingData);
-        localStorage.setItem(this.Entity, jsonData);
-    }
-
-    pagintionedData(totalData, currentPage = 1) {
-        const totalPage = Math.ceil(totalData.length / this.pageSize);
-        if (currentPage < 1) currentPage = 1;
-        if (currentPage > totalPage) currentPage = totalPage;
-
-        const startIndex = (currentPage - 1) * this.pageSize;
-        const endIndex = startIndex + this.pageSize;
-
-        const result = {
-            currentPage: currentPage,
-            totalPage: totalPage,
-            items: totalData.slice(startIndex, endIndex)
-        };
-        return result;
-    }
-
-    // 임시 ID
-    generateUUID() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            const r = (crypto.getRandomValues(new Uint8Array(1))[0] & 0x0f) | 0x40;
-            const v = c === 'x' ? r : (r & 0x3f) | 0x80;
-            return v.toString(16);
-        });
-    }
-
-    // GET
-    async getAll() {
-        const jsonData = localStorage.getItem(this.Entity);
-        return jsonData ? JSON.parse(jsonData) : [];
     }
 }
