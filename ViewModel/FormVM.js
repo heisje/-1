@@ -7,11 +7,12 @@ import { CheckTableVM } from "./CheckTableVM.js";
 import { OPageState, OTableState } from "../ObservingUI/OState.js";
 import { SendMessage } from "../Events/Message.js";
 import { ProductApi } from "../Api/ProductAPI.js";
+import { useQuery } from "../customhook/useQuery.js";
 
 
 // 행위대리자
 export class FormVM {
-    constructor(formType, dataManager, defaultData, pageSize = 10) {
+    constructor(formType, search = false, dataManager, defaultData, pageSize = 10) {
         // Mapping시 결합도의 증가로 인해 mapper를 해제한 상태
         this.dataManager = dataManager ?? new Data();     // 데이터 관리용 클래스
         this.formType = formType;           // 타입별 버튼 부착용
@@ -24,14 +25,18 @@ export class FormVM {
         OTableState.update(defaultData ?? new Map());
         this._abstract_funcMapping();
         this._initMapping();
-        this._virtual_handleSearchFormReset(); // Initialize the form with query data
-        this.currentPage = 1;               // 현재 페이지
-        this._virtual_loadSearch(this.currentPage);
+        this._handleSearchFormReset(defaultData); // Initialize the form with query data
+        OPageState?.updateKey("CurrentPage", 1);
+        if (search) {
+            this._virtual_loadSearch();
+        }
     }
 
     _abstract_funcMapping() {
         this.GetSearchForm; // TODO
+        this._handleSearchFormReset; // TODO
         this.Api = ProductApi;
+
     }
 
 
@@ -41,7 +46,7 @@ export class FormVM {
 
         HeaderByModalType(this.formType);
         document.querySelectorAll('.onSearchButton').forEach(button => {
-            button.addEventListener("click", async () => { await this._virtual_loadSearch(OPageState.getState().currentPage) });
+            button.addEventListener("click", async () => { await this._virtual_loadSearch(OPageState.getState().CurrentPage) });
         })
         document.querySelectorAll(".openWindow").forEach(button => {
             button.addEventListener("click", (event) => { handleOpenWindow(event) });
@@ -80,7 +85,7 @@ export class FormVM {
         }
 
         if (this.formType === 'post' || this.formType === 'update') {
-            new Button({ text: '다시작성', onClick: () => this._virtual_handleSearchFormReset(), parent: formButtons });
+            new Button({ text: '다시작성', onClick: () => this._handleSearchFormReset(this.defaultData), parent: formButtons });
         }
 
         // 폼데이터가 있으면 무조건 모달
@@ -95,7 +100,7 @@ export class FormVM {
         window.addEventListener("message", async (event) => {
             // 공통해당 부분.
             if (event.data?.messageType === 'reSearchData') {
-                await this._virtual_loadSearch(this.currentPage);
+                await this._virtual_loadSearch();
             }
         });
     }
@@ -108,13 +113,14 @@ export class FormVM {
         const selectedIds = CheckTableVM.getSelectedRowIds(document.getElementById('table-body'));
         if (selectedIds.length > 0) {
             for (let i = 0; i < selectedIds.length; i++) {
+
                 await this.dataManager.deleteById(selectedIds[i]);
             }
             alert(`${selectedIds.length}개의 항목이 삭제되었습니다.`);
         } else {
             alert('선택된 항목이 없습니다.');
         }
-        await this._virtual_loadSearch(this.currentPage); // Refresh the data
+        await this._virtual_loadSearch(); // Refresh the data
     }
 
     // POST
@@ -146,10 +152,7 @@ export class FormVM {
         }
 
         const dataObject = this.GetSearchForm();
-        if (!dataObject.id) {
-            this.defaultData?.id;
-        }
-        await this.dataManager.update(this.defaultData?.id, dataObject);
+        await this.dataManager.update(this.defaultData, dataObject);
 
         alert('Data updated in LocalStorage');
         SendMessage({ messageType: 'reSearchData' });
@@ -158,8 +161,10 @@ export class FormVM {
 
     // DELETE
     _handleDelete = async () => {
-        await this.dataManager.deleteById(this.defaultData?.id);
-        alert(`${this.defaultData?.id}가 삭제되었습니다.`)
+        const queryData = useQuery();
+        const queryId = queryData?.id;
+        await this.dataManager.deleteById(queryId);
+        alert(`${JSON.stringify(this.defaultData?.key)}가 삭제되었습니다.`)
         SendMessage({ messageType: 'reSearchData' });
         window.close();
     }
@@ -175,9 +180,9 @@ export class FormVM {
         const ids = CheckTableVM.getSelectedRowIds(targetTable);
         const items = ids.map((id) => {
             console.log(OTableState.getState().get(id));
-
             return OTableState.getState().get(id)
         });
+        console.log(items);
         alert();
         const message = {
             // TODO: 메세지 타입 분할
@@ -192,79 +197,78 @@ export class FormVM {
 
     // FORM RESET
     // virtual
-    _virtual_handleSearchFormReset = () => {
-        document.getElementById('dataForm').querySelectorAll('input').forEach(input => {
-            if (input.name && this.defaultData[input.name]) {
-                input.value = this.defaultData[input.name];
-            } else {
-                input.value = '';
-            }
-            input?.item // Doing
-        });
-    }
+    // _handleSearchFormReset = (defaultData) => {
+    //     if (defaultData) {
+    //         const input1 = document.querySelector('input[name="id"]');
+    //         input1.value = defaultData?.Key.PROD_CD;
+
+    //         const input2 = document.querySelector('input[name="name"]');
+    //         input2.value = defaultData?.PROD_NM;
+
+    //         const input3 = document.querySelector('input[name="price"]');
+    //         input3.value = defaultData?.PRICE;
+    //     }
+    // }
 
     // TABLE GET - 주로 마지막에 실행됨
-    async _virtual_loadSearch(pageNumber = 1) {
+    async _virtual_loadSearch() {
         console.log('페이지로드');
+
         const formObject = this.GetSearchForm();
-        const data = await this.dataManager.search(formObject);
-        const pagintionedData = this.dataManager.pagintionedData(data, pageNumber);
+        console.log("formObject", formObject);
+        const res = await this.dataManager.search(formObject);
+        try {
+            console.log(res);
+        }
+        catch (e) {
+            console.log(e);
+        }
+
         const targetTable = document.getElementById('table-body');
 
         if (!targetTable) return;
         targetTable.innerHTML = ''; // 기존 데이터 삭제
 
         OPageState.update({
-            currentPage: pagintionedData?.currentPage,
-            totalPages: pagintionedData?.totalPage,
+            CurrentPage: res?.CurrentPage,
+            TotalPage: res?.TotalPage,
             onClickEvent: async (index) => {
                 await this._handleIndexPagination(index.target.textContent);
             }
         })
 
-        OTableState.update(arrayToMap(pagintionedData?.items));
+        // OTableState.update(res?.Data);
+        OTableState.update(arrayToMap(res?.Data));
     }
 
 
     // TABLE GET PAGINATION, 이벤트에서 얻은 값만큼 '더하는' 함수
     _handlePagination = async (addNum) => {
-        let currentPage = this.currentPage;
+        let currentPage = OPageState?.getKey("CurrentPage");
         const direction = parseInt(addNum, 10);
-        const loadedData = await this.dataManager.getAll();
-        const totalPages = Math.ceil(loadedData.length / this.dataManager.pageSize);
 
-        if (currentPage + direction < 1) {
+        currentPage += direction;
+
+        if (currentPage < 1) {
             currentPage = 1; // 페이지 번호가 1보다 작아지지 않도록 방지
         }
-        else if (currentPage + direction <= totalPages) {
-            currentPage += direction;
-        } else if (totalPages < currentPage + direction) {
-            currentPage = totalPages
-        }
 
-        this.currentPage = currentPage;
-        this._virtual_loadSearch(this.currentPage);
+        OPageState?.updateKey("CurrentPage", currentPage);
+        await this._virtual_loadSearch();
         return;
     }
 
     // TABLE GET PAGINATION, 인덱스로 이동하는 함수
     _handleIndexPagination = async (index) => {
-        let currentPage = this.currentPage;
+        let currentPage = OPageState?.getKey("CurrentPage");
         const direction = parseInt(index);
-        const loadedData = await this.dataManager.getAll();
-        const totalPages = Math.ceil(loadedData.length / this.dataManager.pageSize);
-
+        currentPage = direction;
         if (direction < 1) {
             currentPage = 1; // 페이지 번호가 1보다 작아지지 않도록 방지
         }
-        else if (direction <= totalPages) {
-            currentPage = direction;
-        } else if (totalPages < direction) {
-            currentPage = totalPages
-        }
 
-        this.currentPage = currentPage;
-        await this._virtual_loadSearch(this.currentPage);
+        OPageState?.updateKey("CurrentPage", currentPage);
+        await this._virtual_loadSearch();
         return;
     }
 

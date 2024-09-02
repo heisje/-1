@@ -13,8 +13,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 데이터
     const dataManager = new Data('item');
-    const queryId = queryData?.id;
-    const defaultData = queryId ? await dataManager.getById(queryId) : new Map();
 
     // Model View 1:1 매칭
     const itemTable = new OItemTableUI();
@@ -22,6 +20,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const paginationUi = new OPaginationUI();
     OPageState.register(paginationUi);
 
-    new ItemVM(formType, dataManager, defaultData, 10);
+    new ItemVM(formType, true, dataManager, null, 10);
     new CheckTableVM();
 });

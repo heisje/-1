@@ -270,7 +270,18 @@ tbody input[type="checkbox"] + label {
 	top: 0;
 	left: 0;
 	justify-content: center;
-	align-items: center;
+}
+
+tbody .left {
+	text-align: left;
+}
+
+tbody .center {
+	text-align: center;
+}
+
+tbody .right {
+	text-align: right;
 }
 
 .checked label {

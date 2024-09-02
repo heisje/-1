@@ -22,10 +22,18 @@ export class OItemTableUI {
         const modalType = useQuery()?.['modal-type'];
 
         let index = 0;
-        for (const [key, item] of data.entries()) {
-            const row = document.createElement('tr');
-            row.setAttribute('id', item?.id); // id 할당
 
+        for (const [key, item] of data.entries()) {
+            const PROD_CD = item?.Key?.PROD_CD;
+            const PRICE = item?.PRICE ?? 0;
+            const PROD_NM = item?.PROD_NM ?? "NULL";
+            const IS_USE = item?.IS_USE ?? true;
+
+            const row = document.createElement('tr');
+            row.setAttribute('id', PROD_CD); // id 할당
+            if (IS_USE === false) {
+                row.style.backgroundColor = 'rgba(255, 0, 0, 0.2)'; // 빨간색 음영
+            }
             // 체크박스 셀 생성
             const checkboxTd = document.createElement('td');
             new CheckBox({
@@ -37,16 +45,16 @@ export class OItemTableUI {
                     const { selectedIds } = CheckBoxState.getState();
 
                     if (event.target.checked) {
-                        selectedIds.add(item?.id);
+                        selectedIds.add(PROD_CD);
                     } else {
-                        selectedIds.delete(item?.id);
+                        selectedIds.delete(PROD_CD);
                     }
 
                     // 체크된 항목의 수가 제한을 초과하면 체크 해제
                     if (selectedIds.size > checkedCount) {
                         alert(`최대 ${checkedCount}개 항목만 선택할 수 있습니다.`);
                         event.target.checked = false;
-                        selectedIds.delete(item?.id);
+                        selectedIds.delete(PROD_CD);
                     }
                     CheckBoxState.changeKeyState({ selectedIds: selectedIds });
                 },
@@ -59,13 +67,13 @@ export class OItemTableUI {
             if (modalType) {
                 const celltd = document.createElement('td');
                 new Button({
-                    text: `${item?.id}`,
+                    text: `${PROD_CD}`,
                     onClick: () => {
                         const message = {
                             // TODO: 메세지 타입 분할
                             messageType: 'set-items',
-                            items: [data.get(item?.id)],
-                            ids: item?.id,
+                            items: [data.get(PROD_CD)],
+                            ids: PROD_CD,
                         }
 
                         window.opener.postMessage(message, window.location.origin);
@@ -75,13 +83,13 @@ export class OItemTableUI {
                 row.appendChild(celltd);
             } else {
                 new Td({
-                    text: item?.id ?? '',
+                    text: PROD_CD ?? '',
                     parent: row
                 });
             }
 
             new Td({
-                text: item?.name ?? '',
+                text: PROD_NM ?? '',
                 parent: row
             });
 
@@ -89,15 +97,16 @@ export class OItemTableUI {
             UpdateButton.addEventListener('click', handleOpenWindow);
 
             new Td({
-                text: item?.price ?? '',
+                text: PRICE ?? '',
                 parent: row,
-                attributes: [{ qualifiedName: "price", value: item?.price }]
+                attributes: [{ qualifiedName: "price", value: PRICE }],
+                classes: ["right"]
             });
 
             new Td({
                 children: UpdateButton,
                 parent: row,
-                attributes: [{ qualifiedName: "name", value: item?.name }]
+                attributes: [{ qualifiedName: "name", value: PROD_NM }]
             });
 
             parent.appendChild(row);

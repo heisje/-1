@@ -21,27 +21,6 @@ export class Data {
         }
     }
 
-    // GET
-    async getById(id) {
-        const existingData = await this.getAll();
-        const item = existingData.find(item => item.id === id);
-        if (!item) {
-            return {
-                "id": "1",
-                "name": "1",
-                "date": "1111-11-11",
-                "item": "1",
-                "count": "1",
-                "price": "1",
-                "description": "1",
-                "itemIds": [
-                    "1"
-                ]
-            };
-        }
-        return item;
-    }
-
     // POST
     async appendById(insertItem) {
         await this.Api.Insert({ insertItem });
@@ -58,26 +37,9 @@ export class Data {
 
 
     // UPDATE
-    async update(id, updateItem) {
-        await this.Api.Update({ updateItem });
-
-        // 기존 코드
-        const existingData = await this.getAll();
-        if (!Array.isArray(existingData)) {
-            throw new Error("Existing data is not an array");
-        }
-
-        const index = existingData.findIndex(item => item.id === id);
-        if (index !== -1) {
-            // 아이디가 문제야 문제
-            if (!updateItem.id) {
-                updateItem.id = id;
-            }
-            existingData[index] = { ...updateItem };
-            await this.saveAll(existingData);
-        } else {
-            throw new Error("Item not found");
-        }
+    async update(defaultData, updateItem) {
+        const res = await this.Api.Update({ updateItem });
+        console.log(res);
     }
 
     // DELETE
@@ -85,36 +47,45 @@ export class Data {
         await this.Api.Delete({ deleteKey });
 
         // 기존 코드
-        let existingData = await this.getAll();
-        if (!Array.isArray(existingData)) {
-            throw new Error("Existing data is not an array");
-        }
+        // let existingData = await this.getAll();
+        // if (!Array.isArray(existingData)) {
+        //     throw new Error("Existing data is not an array");
+        // }
 
-        existingData = existingData.filter(item => item.id !== deleteKey);
-        await this.saveAll(existingData);
+        // existingData = existingData.filter(item => item.id !== deleteKey);
+        // await this.saveAll(existingData);
     }
 
     async searchProduct(criteria) {
-        criteria.currentPage = OPageState?.getState()?.currentPage ?? 1;
-        await this.Api.Search({ criteria });
+        criteria.CurrentPage = OPageState?.getState()?.CurrentPage ?? 1;
+        const response = await this.Api.Search({ criteria });
+        console.log(response);
 
-        const existingData = await this.getAll();
-        if (!Array.isArray(existingData)) {
-            throw new Error("Existing data is not an array");
-        }
-        const { id, name } = criteria;
+        // const existingData = await this.getAll();
+        // if (!Array.isArray(existingData)) {
+        //     throw new Error("Existing data is not an array");
+        // }
+        // const { id, name } = criteria;
 
-        const result = existingData.filter(data => {
-            const matchesId = !id || data.id.includes(id);
-            const matchesName = !name || data.name.includes(name);
+        // const result = existingData.filter(data => {
+        //     const matchesId = !id || data.id.includes(id);
+        //     const matchesName = !name || data.name.includes(name);
 
-            return matchesId && matchesName;
-        });
+        //     return matchesId && matchesName;
+        // });
+        // console.log(result);
 
-        return result;
+        return response;
     }
 
     async searchSalesData(criteria) {
+        criteria.CurrentPage = OPageState?.getState()?.CurrentPage ?? 1;
+        const response = await this.Api.Search({ criteria });
+        console.log(response);
+        return response;
+
+
+
         const existingData = await this.getAll();
         if (!Array.isArray(existingData)) {
             throw new Error("Existing data is not an array");

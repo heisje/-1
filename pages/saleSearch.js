@@ -12,8 +12,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const formType = queryData?.['modal-type'];
 
     const dataManager = new Data('sales');
-    const queryId = queryData?.id;
-    const defaultData = queryId ? await dataManager.getById(queryId) : new Map();
 
     // Model View 1:1 매칭
     const tableUi = new OSaleTableUI();
@@ -21,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const paginationUi = new OPaginationUI();
     OPageState.register(paginationUi);
 
-    new SaleVM(formType, dataManager, defaultData, 10);
+    new SaleVM(formType, true, dataManager, null, 10);
 
     new CheckTableVM();
 });

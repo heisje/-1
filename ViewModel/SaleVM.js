@@ -5,19 +5,22 @@ import { arrayToMap } from '../Utils/arrayToMap.js';
 import { FormVM, NewOpenWindowButton } from './FormVM.js';
 
 export class SaleVM extends FormVM {
-    constructor(formType, dataManager, defaultData, pageSize = 10) {
-        super(formType, dataManager, defaultData, pageSize);
+    constructor(formType, search = false, dataManager, defaultData, pageSize = 10) {
+        super(formType, search, dataManager, defaultData, pageSize);
     }
 
     _abstract_funcMapping() {
         this.GetSearchForm = GetSaleSearchForm;
         this.Api = SaleApi;
+
+        this._handleSearchFormReset = HandleSaleUpdateFormReset;
+        console.log("맵핑완료");
     }
 
     // override
     _initFormButtons() {
         if (this.formType !== 'update' && this.formType !== 'post') {
-            NewOpenWindowButton('itemForm.html');
+            NewOpenWindowButton('saleForm.html');
         }
         ProductGetInput();
         super._initFormButtons();
@@ -65,7 +68,10 @@ export function GetSaleSearchForm() {
     formData.forEach((value, key) => {
         dataObject[key] = value;
     });
+
     dataObject.itemIds = itemIds;
+    console.log("GetSaleSearchForm", dataObject);
+
 
     return dataObject;
 }
@@ -109,22 +115,66 @@ function ProductGetInput() {
 export function SetItems({ items }) {
     const container = document.getElementById('search-items');
     container.innerHTML = ''; // 기존 내용을 비웁니다.
-    items.forEach((item) => {
+    items.forEach((item, idx) => {
+        const PROD_CD = item?.Key?.PROD_CD;
+        const PROD_NM = item?.PROD_NM;
+        const PRICE = item?.PRICE;
         const button = new Button({
-            text: `${item?.id}(${item?.name})`, parent: container,
-            attributes: [{ qualifiedName: 'data-id', value: item?.id }],
+            text: `${PROD_CD}(${PROD_NM})`, parent: container,
+            attributes: [{ qualifiedName: 'data-id', value: PROD_CD }],
         });
+
         button.addRemoveEventListener();
 
         // button.addEventListener('click', () => { button.remove() });
         const itemInput = document.getElementById('item');
         if (itemInput) {
-            itemInput.value = items?.[0]?.id
+            itemInput.value = PROD_CD;
         }
         const priceInput = document.getElementById('price');
         if (priceInput) {
-            priceInput.value = items?.[0]?.price
+            priceInput.value = PRICE;
         }
     })
 
+}
+// {
+//     "COM_CODE": "80000",
+//     "IO_DATE": "20230801",
+//     "IO_NO": 1,
+//     "PROD_CD": "P1",
+//     "PROD_NM": "P1 A",
+//     "QTY": 10.123456,
+//     "PRICE": 99.99,
+//     "REMARKS": "First sale entry"
+// }
+function HandleSaleUpdateFormReset(defaultData) {
+    if (defaultData) {
+        const input1 = document.querySelector('input[name="date"]');
+        input1.value = defaultData?.IO_DATE.replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3");
+
+        SetItems({
+            items: [{
+                Key: {
+                    PROD_CD: defaultData?.PROD_CD
+                },
+                PROD_NM: defaultData?.PROD_NM
+            }]
+        })
+
+        const input2 = document.querySelector('input[name="item"]');
+        input2.value = defaultData?.PROD_CD;
+
+        const input3 = document.querySelector('input[name="count"]');
+        input3.value = defaultData?.QTY;
+
+        const input4 = document.querySelector('input[name="price"]');
+        input4.value = defaultData?.PRICE;
+
+        const input5 = document.querySelector('input[name="description"]');
+        input5.value = defaultData?.REMARKS ?? "";
+
+        const input6 = document.querySelector('input[name="IO_NO"]');
+        input6.value = defaultData?.IO_NO;
+    }
 }

@@ -1,15 +1,18 @@
 import { Http } from "../fetch/http.js";
 
 export const ProductApi = {
-    Search: SearcProduct,
+    Search: SearchProduct,
+    Get: GetProduct,
     Insert: InsertProduct,
     Update: UpdateProduct,
     Delete: DeleteProduct,
 };
 
+const COM_CODE = 80000
+
 const testDummy = {
     "ProductForm": {
-        COM_CODE: "78600",
+        COM_CODE: COM_CODE,
         PROD_CD: "88",
         PROD_NM: "99",
         PRICE: 1010
@@ -21,35 +24,54 @@ const testDummy = {
     "Count": 10
 }
 
-export async function SearcProduct({ criteria }) {
-    console.log(criteria);
+export async function SearchProduct({ criteria }) {
+    console.log("criteria", criteria);
     const data =
     {
         "SearchForm": {
-            COM_CODE: "77",
+            COM_CODE: COM_CODE,
             PROD_CD: `${criteria?.id}`,
             PROD_NM: `${criteria?.name}`,
-            PRICE: `${criteria?.price}`
+            PRICE: `${criteria?.price}`,
+            IS_USE: `${criteria?.is_use}`
         },
         "OrderList": [
-            "PROD_CD", "PROD_NM"
+            "PROD_CD", "PROD_NM", "IS_USE"
         ],
-        "CurrentPage": criteria.currentPage,
+        "CurrentPage": criteria?.CurrentPage ?? 1,
         "Count": 10
     }
 
     try {
         const res = await Http.Post('/product-search', data);
-        console.log("받은 결과", JSON.stringify(res));
-    } catch {
 
+        return res;
+    } catch (e) {
+        console.log(e);
+        return e
     }
-    return
+}
+
+export async function GetProduct({ key }) {
+    console.log("GetProduct", key);
+    const data = {
+        "COM_CODE": COM_CODE,
+        "PROD_CD": `${key}`,
+    }
+
+    try {
+        const res = await Http.Post('/product-get', data);
+        console.log(JSON.stringify(res));
+        return res;
+    } catch (e) {
+        console.error(e);
+        return e;
+    }
 }
 
 const INSERT_DUMMY = {
     Key: {
-        "COM_CODE": "77",
+        "COM_CODE": COM_CODE,
         "PROD_CD": "88",
     },
     PROD_NM: "99",
@@ -60,7 +82,7 @@ const INSERT_DUMMY = {
 export async function InsertProduct({ insertItem }) {
     const data = {
         Key: {
-            "COM_CODE": "77",
+            "COM_CODE": COM_CODE,
             "PROD_CD": `${insertItem?.id}`,
         },
         PROD_NM: `${insertItem?.name}`,
@@ -83,7 +105,7 @@ export async function InsertProduct({ insertItem }) {
 
 const UPDATE_DUMMY = {
     Key: {
-        COM_CODE: "77",
+        COM_CODE: COM_CODE,
         PROD_CD: "88",
     },
     PROD_NM: "99",
@@ -95,7 +117,7 @@ export async function UpdateProduct({ updateItem }) {
     console.log("UpdateProduct", updateItem);
     const data = {
         Key: {
-            "COM_CODE": "77",
+            "COM_CODE": COM_CODE,
             "PROD_CD": `${updateItem?.id}`,
         },
         PROD_NM: `${updateItem?.name}`,
@@ -113,14 +135,14 @@ export async function UpdateProduct({ updateItem }) {
 }
 
 const DELETE_DUMMY = {
-    "COM_CODE": 78600,
+    "COM_CODE": COM_CODE,
     "PROD_CD": "G743"
 }
 
 export async function DeleteProduct({ deleteKey }) {
     console.log("DeleteProduct", deleteKey);
     const data = {
-        "COM_CODE": "77",
+        "COM_CODE": COM_CODE,
         "PROD_CD": `${deleteKey?.id}`,
     }
 

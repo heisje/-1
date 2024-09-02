@@ -1,4 +1,5 @@
 
+import { ProductApi } from '../Api/ProductAPI.js';
 import { useQuery } from '../customhook/useQuery.js';
 import { Data } from '../data/data.js';
 import { ItemVM } from '../ViewModel/ItemVM.js';
@@ -10,7 +11,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 데이터
     const dataManager = new Data('item');
     const queryId = queryData?.id;
-    const defaultData = queryId ? await dataManager.getById(queryId) : new Map();
+    // modal-type=update
 
-    new ItemVM(formType, dataManager, defaultData, 10);
+    if (queryData?.['modal-type'] === "update") {
+        const res = await ProductApi.Get({ key: queryId });
+        console.log(res);
+        new ItemVM(formType, false, dataManager, res?.Data, 10);
+        return;
+    }
+
+    new ItemVM(formType, false, dataManager, null, 10);
 });
