@@ -67,7 +67,15 @@ export const Http = {
             body: JSON.stringify(data),
             ...options
         });
-        return await response.json();
+        if (!response.ok) {
+            const error = new Error(`HTTP error! Status: ${response.status} - ${response.statusText}`);
+            error.status = response.status;  // 에러 객체에 상태 코드 추가
+            error.data = await response.json();
+            error.message = error?.data?.message;
+            throw error;
+        }
+        console.log("response", response);
+        return response.json();
     },
 
     /**

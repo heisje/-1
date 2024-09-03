@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (queryData?.['modal-type'] === "update") {
 
         const res = await SaleApi.Get({ key: queryId });
-        console.log("res", res);
         new SaleVM(formType, false, dataManager, res.Data, 10);
         return
     }

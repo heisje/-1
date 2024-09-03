@@ -78,9 +78,10 @@
 			</form>
 		</main>
 
+		<div id="sort-ui"></div>
 		<section>
 			<table class="list-table">
-				<thead>
+				<thead id="columns">
 					<tr>
 						<th>
 							<input
@@ -89,9 +90,32 @@
 								id="table-parrent-checkbox"
 							/>
 						</th>
-						<th>품목코드</th>
-						<th>품목명</th>
-						<th>단가</th>
+						<th>
+							<span>품목코드</span>
+							<span
+								class="sort-arrows"
+								data-order="PROD_CD"
+								data-order-type="ASC"
+							>
+								<span class="arrow">&#9650;</span>
+								<span class="arrow">&#9660;</span>
+							</span>
+						</th>
+						<th>
+							<span>품목명</span>
+							<span class="sort-arrows" data-order="PROD_NM">
+								<span class="arrow">&#9650;</span>
+								<span class="arrow">&#9660;</span>
+							</span>
+						</th>
+						<th>
+							<span>단가</span>
+							<span class="sort-arrows" data-order="PRICE">
+								<span class="arrow">&#9650;</span>
+								<span class="arrow">&#9660;</span>
+							</span>
+						</th>
+
 						<th>
 							<!-- <button
 						class="openWindow"
@@ -107,7 +131,6 @@
 					<!-- Data rows will be inserted here -->
 				</tbody>
 			</table>
-
 			<div id="bottom-button-container">
 				<div id="formButtons" style="display: inline-block"></div>
 				<div style="display: inline-block">

@@ -13,6 +13,8 @@ export class OItemTableUI {
     }
 
     async render({ parent, data }) {
+        parent.innerHTML = ''; // 기존 데이터 삭제
+
         if (data.size <= 0) {
             return;
         }

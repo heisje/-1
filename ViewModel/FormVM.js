@@ -4,10 +4,11 @@ import { arrayToMap } from "../Utils/arrayToMap.js";
 import { handleOpenWindow } from "../modal/handleOpenWindow.js";
 import { HeaderByModalType } from "../components/HeaderText.js";
 import { CheckTableVM } from "./CheckTableVM.js";
-import { OPageState, OTableState } from "../ObservingUI/OState.js";
+import { OPageState, OSortState, OTableState } from "../ObservingUI/OState.js";
 import { SendMessage } from "../Events/Message.js";
 import { ProductApi } from "../Api/ProductAPI.js";
 import { useQuery } from "../customhook/useQuery.js";
+import { InitOrder, ToggleOrder } from "./SearchTable.js";
 
 
 // 행위대리자
@@ -17,7 +18,7 @@ export class FormVM {
         this.dataManager = dataManager ?? new Data();     // 데이터 관리용 클래스
         this.formType = formType;           // 타입별 버튼 부착용
         this.defaultData = defaultData;     // 초기데이터
-
+        this.search = search;
         // 현재 데이터
         // - 잦은 참조가 필요하다. 
         //    // 그래서 ID를 ROW마다 참조해두고, 현재데이터에서 뽑아 쓰는 방식으로 구현
@@ -28,6 +29,23 @@ export class FormVM {
         this._handleSearchFormReset(defaultData); // Initialize the form with query data
         OPageState?.updateKey("CurrentPage", 1);
         if (search) {
+            const arrows = document.querySelectorAll(".sort-arrows");
+            arrows.forEach(arrow => {
+                // UI 초기화
+                const order = arrow.getAttribute("data-order-type");
+                arrow.querySelectorAll('.arrow').forEach((elem, index) => {
+                    elem.classList.remove('arrow-active');
+                    if ((order === "ASC" && index === 0) || (order === "DESC" && index === 1)) {
+                        elem.classList.add('arrow-active');
+                    }
+                });
+
+                // 이벤트 삽입
+                arrow.addEventListener("click", async () => {
+                    ToggleOrder(arrow);
+                    await this._virtual_loadSearch();
+                });
+            });
             this._virtual_loadSearch();
         }
     }
@@ -110,63 +128,80 @@ export class FormVM {
     // --------------------------------
     // Delete
     async _handleDeleteSelected() {
-        const selectedIds = CheckTableVM.getSelectedRowIds(document.getElementById('table-body'));
-        if (selectedIds.length > 0) {
-            for (let i = 0; i < selectedIds.length; i++) {
 
-                await this.dataManager.deleteById(selectedIds[i]);
+        try {
+            const selectedIds = CheckTableVM.getSelectedRowIds(document.getElementById('table-body'));
+            if (selectedIds.length > 0) {
+                console.log("selectedIds", selectedIds);
+                const res = this.Api.DeleteList({ Keys: [...selectedIds] });
+                await this._virtual_loadSearch(); // Refresh the data
+
+                alert(`${selectedIds.length}개의 항목이 삭제되었습니다.`);
+            } else {
+                alert('선택된 항목이 없습니다.');
             }
-            alert(`${selectedIds.length}개의 항목이 삭제되었습니다.`);
-        } else {
-            alert('선택된 항목이 없습니다.');
+        } catch (e) {
+            alert(e?.message);
         }
-        await this._virtual_loadSearch(); // Refresh the data
     }
 
     // POST
     async _handleSave(event) {
         event.preventDefault();
 
-        const key = this._validateFormData(this.requiredKeys);
-        if (key != true) {
-            alert(`${key}를 채워주세요.`);
-            return;
+        try {
+            const key = this._validateFormData(this.requiredKeys);
+            if (key != true) {
+                alert(`${key}를 채워주세요.`);
+                return;
+            }
+
+            const dataObject = this.GetSearchForm();
+
+            await this.dataManager.appendById(dataObject);
+            alert('Data saved to LocalStorage');
+            SendMessage({ messageType: 'reSearchData' });
+            window.close();
+        } catch (e) {
+            alert(e?.message);
         }
-
-        const dataObject = this.GetSearchForm();
-
-        await this.dataManager.appendById(dataObject);
-        alert('Data saved to LocalStorage');
-        SendMessage({ messageType: 'reSearchData' });
-        window.close();
     }
 
     // UPDATE
     async _handleUpdate(event) {
-        event.preventDefault();
+        try {
+            event.preventDefault();
 
-        const key = this._validateFormData(this.requiredKeys);
-        if (key != true) {
-            alert(`${key}를 채워주세요.`);
-            return;
+            const key = this._validateFormData(this.requiredKeys);
+            if (key != true) {
+                alert(`${key}를 채워주세요.`);
+                return;
+            }
+
+            const dataObject = this.GetSearchForm();
+            await this.dataManager.update(this.defaultData, dataObject);
+
+            alert('Data updated in LocalStorage');
+            SendMessage({ messageType: 'reSearchData' });
+            window.close();
+        } catch (e) {
+            alert(e?.message);
         }
-
-        const dataObject = this.GetSearchForm();
-        await this.dataManager.update(this.defaultData, dataObject);
-
-        alert('Data updated in LocalStorage');
-        SendMessage({ messageType: 'reSearchData' });
-        window.close();
     }
 
     // DELETE
     _handleDelete = async () => {
-        const queryData = useQuery();
-        const queryId = queryData?.id;
-        await this.dataManager.deleteById(queryId);
-        alert(`${JSON.stringify(this.defaultData?.key)}가 삭제되었습니다.`)
-        SendMessage({ messageType: 'reSearchData' });
-        window.close();
+        try {
+            const queryData = useQuery();
+            const queryId = queryData?.id;
+            await this.dataManager.deleteById(queryId);
+            alert(`${JSON.stringify(this.defaultData?.Key)}가 삭제되었습니다.`)
+            SendMessage({ messageType: 'reSearchData' });
+            window.close();
+        } catch (e) {
+            console.log(e);
+            alert(e?.message);
+        }
     }
 
     // itemInjection
@@ -195,50 +230,34 @@ export class FormVM {
         window.close();
     }
 
-    // FORM RESET
-    // virtual
-    // _handleSearchFormReset = (defaultData) => {
-    //     if (defaultData) {
-    //         const input1 = document.querySelector('input[name="id"]');
-    //         input1.value = defaultData?.Key.PROD_CD;
-
-    //         const input2 = document.querySelector('input[name="name"]');
-    //         input2.value = defaultData?.PROD_NM;
-
-    //         const input3 = document.querySelector('input[name="price"]');
-    //         input3.value = defaultData?.PRICE;
-    //     }
-    // }
-
     // TABLE GET - 주로 마지막에 실행됨
     async _virtual_loadSearch() {
-        console.log('페이지로드');
-
-        const formObject = this.GetSearchForm();
-        console.log("formObject", formObject);
-        const res = await this.dataManager.search(formObject);
+        // 요청
         try {
-            console.log(res);
-        }
-        catch (e) {
-            console.log(e);
-        }
+            const formObject = this.GetSearchForm();
 
-        const targetTable = document.getElementById('table-body');
-
-        if (!targetTable) return;
-        targetTable.innerHTML = ''; // 기존 데이터 삭제
-
-        OPageState.update({
-            CurrentPage: res?.CurrentPage,
-            TotalPage: res?.TotalPage,
-            onClickEvent: async (index) => {
-                await this._handleIndexPagination(index.target.textContent);
+            // sort데이터
+            const sort = [];
+            const entries = Array.from(OSortState?.getState()?.entries()).reverse();
+            for (const [key, value] of entries) {
+                sort.push({ field: key, type: value });
             }
-        })
+            formObject.Sort = sort;
+            const res = await this.dataManager.search(formObject);
+            // UI반영
+            OPageState.update({
+                CurrentPage: res?.CurrentPage,
+                TotalPage: res?.TotalPage,
+                onClickEvent: async (index) => {
+                    await this._handleIndexPagination(index.target.textContent);
+                }
+            })
 
-        // OTableState.update(res?.Data);
-        OTableState.update(arrayToMap(res?.Data));
+            // OTableState.update(res?.Data);
+            OTableState.update(arrayToMap(res?.Data));
+        } catch (e) {
+            alert(e?.message);
+        }
     }
 
 
@@ -282,9 +301,6 @@ export class FormVM {
         }
         return true;
     }
-
-
-
 }
 
 export function NewOpenWindowButton(targetHtml) {

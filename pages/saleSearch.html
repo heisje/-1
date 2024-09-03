@@ -99,11 +99,11 @@
 				</div>
 			</form>
 		</main>
-
+		<div id="sort-ui"></div>
 		<section>
 			<table class="list-table">
 				<thead>
-					<tr>
+					<tr id="columns">
 						<th>
 							<input
 								type="checkbox"
@@ -111,12 +111,49 @@
 								id="table-parrent-checkbox"
 							/>
 						</th>
-						<th>전표일자/번호</th>
-						<th>품목코드</th>
-						<th>품목명</th>
-						<th>수량</th>
-						<th>단가</th>
-						<th>적요</th>
+						<th>
+							<span>전표일자/번호</span>
+							<span
+								class="sort-arrows"
+								data-order="s.IO_DATE"
+								data-order-type="DESC"
+							>
+								<span class="arrow">&#9650;</span>
+								<span class="arrow">&#9660;</span>
+							</span>
+						</th>
+						<th>
+							<span>품목코드</span>
+							<span class="sort-arrows" data-order="s.PROD_CD">
+								<span class="arrow">&#9650;</span>
+								<span class="arrow">&#9660;</span>
+							</span>
+						</th>
+						<th>
+							<span>품목명</span>
+							<span class="sort-arrows" data-order="p.PROD_NM">
+								<span class="arrow">&#9650;</span>
+								<span class="arrow">&#9660;</span>
+							</span>
+						</th>
+						<th>
+							<span>수량</span>
+							<span class="sort-arrows" data-order="s.QTY">
+								<!-- data-order-type="ASC" -->
+								<span class="arrow">&#9650;</span>
+								<span class="arrow">&#9660;</span>
+							</span>
+						</th>
+						<th>
+							<span>단가</span>
+							<span class="sort-arrows" data-order="s.PRICE">
+								<span class="arrow">&#9650;</span>
+								<span class="arrow">&#9660;</span>
+							</span>
+						</th>
+						<th>
+							<span>적요</span>
+						</th>
 					</tr>
 				</thead>
 				<tbody id="table-body" data-table="item"></tbody>

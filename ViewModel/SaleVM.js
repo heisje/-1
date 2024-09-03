@@ -15,12 +15,15 @@ export class SaleVM extends FormVM {
 
         this._handleSearchFormReset = HandleSaleUpdateFormReset;
         console.log("맵핑완료");
+
     }
 
     // override
     _initFormButtons() {
         if (this.formType !== 'update' && this.formType !== 'post') {
             NewOpenWindowButton('saleForm.html');
+        } if (this.formType !== 'update') {
+            document.getElementById('IO_NO')?.remove();
         }
         ProductGetInput();
         super._initFormButtons();
@@ -34,26 +37,6 @@ export class SaleVM extends FormVM {
             }
         });
     }
-
-    // 검색 조건에 따라 테이블 데이터 로드 함수
-    // async _virtual_loadSearch(pageNumber = 1) {
-    //     const formObject = this.GetSearchForm();
-
-    //     const totalData = await this.dataManager.searchSalesData(formObject); // 검색된 데이터의 페이지네이션 결과 로드
-    //     const pagintionedData = this.dataManager.pagintionedData(totalData, pageNumber);
-    //     const targetTable = document.getElementById('table-body');
-    //     // 기존 데이터 삭제
-    //     if (!targetTable) return;
-    //     targetTable.innerHTML = '';
-    //     OPageState.update({
-    //         currentPage: pagintionedData?.currentPage,
-    //         totalPages: pagintionedData?.totalPage,
-    //         onClickEvent: async (index) => {
-    //             await this._handleIndexPagination(index.target.textContent);
-    //         }
-    //     })
-    //     OTableState.update(arrayToMap(pagintionedData?.items));
-    // }
 }
 
 // GET

@@ -6,6 +6,7 @@ import { handleOpenWindow } from "../../modal/handleOpenWindow.js";
 export class OSaleTableUI {
     update(object) {
         console.log('updated O');
+
         console.log(object);
         this.render({ parent: document.getElementById('table-body'), data: object });
     }
@@ -21,7 +22,7 @@ export class OSaleTableUI {
     // }
     async render({ parent, data }) {
         try {
-
+            parent.innerHTML = ''; // 기존 데이터 삭제
 
             let index = 0;
             for (const [key, item] of data.entries()) {

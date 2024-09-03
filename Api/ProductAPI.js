@@ -6,6 +6,9 @@ export const ProductApi = {
     Insert: InsertProduct,
     Update: UpdateProduct,
     Delete: DeleteProduct,
+    Put: PutProduct,
+    PutList: PutProductList,
+    DeleteList: DeleteProductList,
 };
 
 const COM_CODE = 80000
@@ -35,6 +38,7 @@ export async function SearchProduct({ criteria }) {
             PRICE: `${criteria?.price}`,
             IS_USE: `${criteria?.is_use}`
         },
+        "SortList": criteria?.Sort,
         "OrderList": [
             "PROD_CD", "PROD_NM", "IS_USE"
         ],
@@ -42,14 +46,7 @@ export async function SearchProduct({ criteria }) {
         "Count": 10
     }
 
-    try {
-        const res = await Http.Post('/product-search', data);
-
-        return res;
-    } catch (e) {
-        console.log(e);
-        return e
-    }
+    return await Http.Post('/product-search', data);
 }
 
 export async function GetProduct({ key }) {
@@ -59,14 +56,8 @@ export async function GetProduct({ key }) {
         "PROD_CD": `${key}`,
     }
 
-    try {
-        const res = await Http.Post('/product-get', data);
-        console.log(JSON.stringify(res));
-        return res;
-    } catch (e) {
-        console.error(e);
-        return e;
-    }
+    return await Http.Post('/product-get', data);
+
 }
 
 const INSERT_DUMMY = {
@@ -90,17 +81,7 @@ export async function InsertProduct({ insertItem }) {
         WRITE_DT: new Date().toISOString(),
     }
 
-    try {
-        if (!data) {
-            throw new Error();
-        }
-        const res = await Http.Post('/product-insert', data);
-        console.log(JSON.stringify(res));
-    } catch (e) {
-        alert("InsertProduct 실패");
-        console.error(e);
-    }
-    return
+    return await Http.Post('/product-insert', data);
 }
 
 const UPDATE_DUMMY = {
@@ -125,13 +106,37 @@ export async function UpdateProduct({ updateItem }) {
         WRITE_DT: new Date().toISOString(),
     }
 
-    try {
-        const res = await Http.Post('/product-update', data);
-        console.log(JSON.stringify(res));
-    } catch {
+    return await Http.Post('/product-update', data);
+}
 
-    }
-    return
+export async function PutProduct({ PROD_CD, IS_USE }) {
+    const data = {
+        Key:
+        {
+            "COM_CODE": COM_CODE,
+            "PROD_CD": PROD_CD,
+        },
+        IS_USE
+    };
+
+    return await Http.Post('/product-put', data);
+}
+
+export async function PutProductList({ Keys, IS_USE }) {
+    console.log("UpdateProduct", updateItem);
+    // {
+    //     "COM_CODE": COM_CODE,
+    //     "PROD_CD": `${updateItem?.id}`,
+    // }
+    const data = {
+        Keys: [],
+        Columns: {
+            IS_USE: IS_USE
+        }
+    };
+    data.Keys = Keys;
+
+    return await Http.Post('/product-put-list', data);
 }
 
 const DELETE_DUMMY = {
@@ -143,14 +148,21 @@ export async function DeleteProduct({ deleteKey }) {
     console.log("DeleteProduct", deleteKey);
     const data = {
         "COM_CODE": COM_CODE,
-        "PROD_CD": `${deleteKey?.id}`,
+        "PROD_CD": `${deleteKey}`,
     }
+    return await Http.Post('/product-delete', data);
+}
 
-    try {
-        const res = await Http.Post('/product-delete', data);
-        console.log(JSON.stringify(res));
-    } catch {
+export async function DeleteProductList({ Keys }) {
 
-    }
-    return
+    const keys = Keys.map((item) => {
+        return {
+            "COM_CODE": COM_CODE,
+            "PROD_CD": `${item}`,
+        }
+    })
+    const data = [...keys];
+    console.log("data", data);
+
+    return await Http.Post('/product-delete-list', data);
 }

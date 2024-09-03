@@ -4,8 +4,10 @@ import { Data } from '../data/data.js';
 import { ItemVM } from '../ViewModel/ItemVM.js';
 import { CheckTableVM } from '../ViewModel/CheckTableVM.js';
 import { OItemTableUI } from '../ObservingUI/Table/OItemTableUI.js';
-import { OPageState, OTableState } from '../ObservingUI/OState.js';
+import { OPageState, OSortState, OTableState } from '../ObservingUI/OState.js';
 import { OPaginationUI } from '../ObservingUI/Pagination/OPaginationUI.js';
+import { InitOrder } from '../ViewModel/SearchTable.js';
+import { OSortUI } from '../ObservingUI/Sort/OSortUI.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const queryData = useQuery();
@@ -19,6 +21,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     OTableState.register(itemTable);
     const paginationUi = new OPaginationUI();
     OPageState.register(paginationUi);
+
+    // Sort상태 초기화
+    const defaultOrder = new Map([
+        ["PROD_CD", "ASC"],
+    ]);
+    OSortState.update(defaultOrder);
+    const sortUI = new OSortUI();
+    OSortState.register(sortUI);
+
+
 
     new ItemVM(formType, true, dataManager, null, 10);
     new CheckTableVM();

@@ -6,7 +6,7 @@ export class AbstractObservable {
 
     set state(newState) {
         this._state = newState;
-        this.notify(this._state);
+        this.notify();
     }
 
     get state() {
@@ -25,8 +25,8 @@ export class AbstractObservable {
         this._observers = this._observers.filter(obs => obs !== observer);
     }
 
-    notify(data) {
-        this._observers.forEach(observer => observer.update(data));
+    notify() {
+        this._observers.forEach(observer => observer.update(this._state));
     }
 
     // 특정 key 요소만 업데이트하는 메서드
@@ -34,6 +34,7 @@ export class AbstractObservable {
         // 기존 상태를 복사하여 업데이트
         const newState = { ...this._state, [key]: value };
         this.state = newState; // 상태 설정을 통해 변경된 상태를 알림
+
     }
 
     getKey(key) {

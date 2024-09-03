@@ -288,3 +288,33 @@ tbody .right {
 	background: rgb(60, 60, 255);
 	color: #fff;
 }
+
+.sort-arrows {
+	display: flex;
+	flex-direction: column;
+	margin-left: 5px;
+	font-size: 12px;
+}
+
+.arrow {
+	cursor: pointer;
+	color: #ccc;
+}
+
+.arrow.arrow-active {
+	color: #000;
+}
+
+#sort-ui {
+	height: 1rem;
+}
+
+#sort-ui span {
+	padding: 0 0.2rem;
+	font-size: 0.8rem;
+}
+
+input[readonly] {
+	background-color: #e9ecef; /* 수정 불가 상태에서 배경색 변경 */
+	cursor: not-allowed; /* 커서를 not-allowed 상태로 변경 */
+}

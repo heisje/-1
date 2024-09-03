@@ -6,6 +6,7 @@ export const SaleApi = {
     Insert: InsertSale,
     Update: UpdateSale,
     Delete: DeleteSale,
+    DeleteList: DeleteSaleList,
 }
 
 const paramDummy = {
@@ -77,6 +78,7 @@ export async function SearchSale({ criteria }) {
             ],
             "REMARKS": `${criteria?.description}`
         },
+        "SortList": criteria?.Sort,
         "OrderList": [
             "IO_DATE", "PROD_CD"
         ],
@@ -93,15 +95,7 @@ export async function SearchSale({ criteria }) {
         });
     }
 
-    try {
-        console.log("디버그", criteria);
-        const res = await Http.Post('/sale-search', data);
-        console.log(JSON.stringify(res));
-        return res;
-    } catch {
-
-    }
-    return
+    return await Http.Post('/sale-search', data);
 }
 
 
@@ -117,14 +111,7 @@ export async function GetSale({ key }) {
         IO_NO: IO_NO
     }
 
-    try {
-        const res = await Http.Post('/sale-get', data);
-        console.log(JSON.stringify(res));
-        return res;
-    } catch {
-
-    }
-    return
+    return await Http.Post('/sale-get', data);
 }
 
 
@@ -167,13 +154,7 @@ export async function InsertSale({ insertItem }) {
         REMARKS: insertItem?.description
     }
 
-    try {
-        const res = await Http.Post('/sale-insert', data);
-        console.log(JSON.stringify(res));
-    } catch {
-
-    }
-    return
+    return await Http.Post('/sale-insert', data);
 }
 
 const UPDATE_DUMMY = {
@@ -199,14 +180,8 @@ export async function UpdateSale({ updateItem }) {
         PROD_CD: updateItem?.itemIds?.[0] ?? updateItem?.item,
         PRICE: updateItem?.price,
         REMARKS: updateItem?.description
-    }
-    try {
-        const res = await Http.Post('/sale-update', data);
-        console.log(JSON.stringify(res));
-    } catch {
-
-    }
-    return
+    };
+    return await Http.Post('/sale-update', data);
 }
 
 const DELETE_DUMMY = {
@@ -227,11 +202,24 @@ export async function DeleteSale({ deleteKey }) {
         IO_NO: IO_NO
     }
 
-    try {
-        const res = await Http.Post('/sale-delete', data);
-        console.log(JSON.stringify(res));
-    } catch {
+    return await Http.Post('/sale-delete', data);
+}
 
-    }
-    return
+export async function DeleteSaleList({ Keys }) {
+
+    const keys = Keys.map((item) => {
+        const parts = item.split('-'); // '-'을 기준으로 문자열을 나눕니다.
+
+        const IO_DATE = parts[0]; // "20230801"
+        const IO_NO = parts[1]; // "1"
+        return {
+            COM_CODE: COM_CODE,
+            IO_DATE: IO_DATE,
+            IO_NO: IO_NO
+        }
+    })
+    const data = [...keys];
+    console.log("data", data);
+
+    return await Http.Post('/sale-delete-list', data);
 }

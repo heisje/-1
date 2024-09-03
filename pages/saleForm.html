@@ -21,7 +21,6 @@
 		</nav>
 		<main>
 			<form id="dataForm" name="sales_input_form" onsubmit="return false;">
-				<input type="hidden" id="IO_NO" name="IO_NO" />
 				<div class="header-container">
 					<h1>판매 <span id="modalTypeText"></span></h1>
 
@@ -37,6 +36,7 @@
 									placeholder="시작 날짜"
 								/>
 							</div>
+							<input readonly id="IO_NO" name="IO_NO" />
 						</li>
 						<li>
 							<label for="itemList">품목</label>

@@ -1,6 +1,6 @@
 import { ProductApi } from "../Api/ProductAPI.js";
 import { SaleApi } from "../Api/SaleAPI.js";
-import { OPageState } from "../ObservingUI/OState.js";
+import { OPageState, OSortState } from "../ObservingUI/OState.js";
 
 // 연동 관리
 export class Data {
@@ -43,37 +43,19 @@ export class Data {
     }
 
     // DELETE
-    async deleteById(deleteKey) {
-        await this.Api.Delete({ deleteKey });
+    async deleteById(id) {
+        await this.Api.Delete({ deleteKey: id });
+    }
 
-        // 기존 코드
-        // let existingData = await this.getAll();
-        // if (!Array.isArray(existingData)) {
-        //     throw new Error("Existing data is not an array");
-        // }
-
-        // existingData = existingData.filter(item => item.id !== deleteKey);
-        // await this.saveAll(existingData);
+    async deleteList(Keys) {
+        await this.Api.Delete({ Keys });
     }
 
     async searchProduct(criteria) {
         criteria.CurrentPage = OPageState?.getState()?.CurrentPage ?? 1;
+
         const response = await this.Api.Search({ criteria });
         console.log(response);
-
-        // const existingData = await this.getAll();
-        // if (!Array.isArray(existingData)) {
-        //     throw new Error("Existing data is not an array");
-        // }
-        // const { id, name } = criteria;
-
-        // const result = existingData.filter(data => {
-        //     const matchesId = !id || data.id.includes(id);
-        //     const matchesName = !name || data.name.includes(name);
-
-        //     return matchesId && matchesName;
-        // });
-        // console.log(result);
 
         return response;
     }
@@ -83,33 +65,6 @@ export class Data {
         const response = await this.Api.Search({ criteria });
         console.log(response);
         return response;
-
-
-
-        const existingData = await this.getAll();
-        if (!Array.isArray(existingData)) {
-            throw new Error("Existing data is not an array");
-        }
-
-        const { start_date, end_date, itemIds, description } = criteria;
-        const result = existingData.filter(data => {
-            const itemArray = data.item.split(',').map(itemString => {
-                const [count, price] = itemString.split(':');
-                return { date: data.date, item: data.item, count, price, description: data.description, id: data.id };
-            });
-
-            return itemArray.some(itemData => {
-                const matchesStartDate = !start_date || new Date(itemData.date) >= new Date(start_date);
-                const matchesEndDate = !end_date || new Date(itemData.date) <= new Date(end_date);
-                const matchesItem = !itemIds || itemData.item.includes(itemIds);
-                const matchesDescription = !description || itemData.description.includes(description);
-
-                return matchesStartDate && matchesEndDate && matchesItem && matchesDescription;
-            });
-
-        });
-
-        return result;
     }
 
     // -------------------------------

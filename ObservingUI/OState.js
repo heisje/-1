@@ -19,3 +19,4 @@ class OState extends AbstractObservable {
 // TODO: 관리 폴더 구조를 변경
 export const OTableState = new OState();
 export const OPageState = new OState();
+export const OSortState = new OState();
