@@ -14,8 +14,6 @@ export class SaleVM extends FormVM {
         this.Api = SaleApi;
 
         this._handleSearchFormReset = HandleSaleUpdateFormReset;
-        console.log("맵핑완료");
-
     }
 
     // override
@@ -53,7 +51,6 @@ export function GetSaleSearchForm() {
     });
 
     dataObject.itemIds = itemIds;
-    console.log("GetSaleSearchForm", dataObject);
 
 
     return dataObject;
@@ -136,14 +133,19 @@ function HandleSaleUpdateFormReset(defaultData) {
         const input1 = document.querySelector('input[name="date"]');
         input1.value = defaultData?.IO_DATE.replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3");
 
-        SetItems({
-            items: [{
-                Key: {
-                    PROD_CD: defaultData?.PROD_CD
-                },
-                PROD_NM: defaultData?.PROD_NM
-            }]
-        })
+        if (defaultData?.PROD_CD && defaultData?.PROD_NM) {
+            SetItems({
+                items: [{
+                    Key: {
+                        PROD_CD: defaultData?.PROD_CD
+                    },
+                    PROD_NM: defaultData?.PROD_NM
+                }]
+            })
+        } else {
+            const container = document.getElementById('search-items');
+            container.innerHTML = '';
+        }
 
         const input2 = document.querySelector('input[name="item"]');
         input2.value = defaultData?.PROD_CD;

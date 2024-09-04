@@ -3,7 +3,6 @@ import { Span } from "../../components/Span.js";
 
 export class OSortUI {
     update(object) {
-        console.log("OSortUI");
         this.render({ parent: document.getElementById('sort-ui'), data: object });
     }
 
@@ -20,7 +19,7 @@ export class OSortUI {
             }
 
         } catch (e) {
-            console.log(e);
+            console.error(e);
         }
     }
 }

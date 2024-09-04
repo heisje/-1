@@ -72,7 +72,7 @@ export class FormVM {
         document.querySelectorAll("[data-pagi]").forEach(button => {
             button.addEventListener('click', async (event) => { await this._handlePagination(event.currentTarget.getAttribute('data-pagi')) });
         });
-        document.querySelector('.deleteButton')?.addEventListener('click', async () => { console.log('삭제시작'); await this._handleDeleteSelected(); console.log('삭제완료'); });;
+        document.querySelector('.deleteButton')?.addEventListener('click', async () => { await this._handleDeleteSelected(); });
 
         this._init_listenMessage();
     }
@@ -132,10 +132,8 @@ export class FormVM {
         try {
             const selectedIds = CheckTableVM.getSelectedRowIds(document.getElementById('table-body'));
             if (selectedIds.length > 0) {
-                console.log("selectedIds", selectedIds);
                 const res = await this.Api.DeleteList({ Keys: [...selectedIds] });
                 await this._virtual_loadSearch(); // Refresh the data
-                console.log(res);
                 alert(`${res.Data}`);
             } else {
                 alert('선택된 항목이 없습니다.');
@@ -194,12 +192,14 @@ export class FormVM {
         try {
             const queryData = useQuery();
             const queryId = queryData?.id;
-            await this.dataManager.deleteById(queryId);
+            const res = await this.dataManager.deleteById(queryId);
+            console.log(res);
+
             alert(`${JSON.stringify(this.defaultData?.Key)}가 삭제되었습니다.`)
             SendMessage({ messageType: 'reSearchData' });
             window.close();
         } catch (e) {
-            console.log(e);
+            console.error(e);
             alert(e?.message);
         }
     }
@@ -214,10 +214,8 @@ export class FormVM {
 
         const ids = CheckTableVM.getSelectedRowIds(targetTable);
         const items = ids.map((id) => {
-            console.log(OTableState.getState().get(id));
             return OTableState.getState().get(id)
         });
-        console.log(items);
         alert();
         const message = {
             // TODO: 메세지 타입 분할

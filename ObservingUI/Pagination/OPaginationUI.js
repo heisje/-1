@@ -2,13 +2,11 @@ import { Button } from "../../components/common/Button.js";
 
 export class OPaginationUI {
     update(object) {
-        console.log("OPaginationUI update", object)
         this.render({ parent: document.getElementById('pagination-container'), data: object });
     }
 
     render({ parent, data }) {
         const { CurrentPage, TotalPage, onClickEvent } = data;
-        console.log("OPaginationUI render", CurrentPage, TotalPage);
         if (!parent) {
             return;
         }

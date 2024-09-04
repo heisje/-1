@@ -6,12 +6,10 @@ export const ProductApi = {
     Insert: InsertProduct,
     Update: UpdateProduct,
     Delete: DeleteProduct,
-    Put: PutProduct,
-    PutList: PutProductList,
     DeleteList: DeleteProductList,
 };
 
-const COM_CODE = 80000
+const COM_CODE = 80000;
 
 const testDummy = {
     "ProductForm": {
@@ -28,7 +26,6 @@ const testDummy = {
 }
 
 export async function SearchProduct({ criteria }) {
-    console.log("criteria", criteria);
     const data =
     {
         "SearchForm": {
@@ -50,7 +47,6 @@ export async function SearchProduct({ criteria }) {
 }
 
 export async function GetProduct({ key }) {
-    console.log("GetProduct", key);
     const data = {
         "COM_CODE": COM_CODE,
         "PROD_CD": `${key}`,
@@ -95,7 +91,6 @@ const UPDATE_DUMMY = {
 }
 
 export async function UpdateProduct({ updateItem }) {
-    console.log("UpdateProduct", updateItem);
     const data = {
         Key: {
             "COM_CODE": COM_CODE,
@@ -109,43 +104,12 @@ export async function UpdateProduct({ updateItem }) {
     return await Http.Post('/product-update', data);
 }
 
-export async function PutProduct({ PROD_CD, IS_USE }) {
-    const data = {
-        Key:
-        {
-            "COM_CODE": COM_CODE,
-            "PROD_CD": PROD_CD,
-        },
-        IS_USE
-    };
-
-    return await Http.Post('/product-put', data);
-}
-
-export async function PutProductList({ Keys, IS_USE }) {
-    console.log("UpdateProduct", updateItem);
-    // {
-    //     "COM_CODE": COM_CODE,
-    //     "PROD_CD": `${updateItem?.id}`,
-    // }
-    const data = {
-        Keys: [],
-        Columns: {
-            IS_USE: IS_USE
-        }
-    };
-    data.Keys = Keys;
-
-    return await Http.Post('/product-put-list', data);
-}
-
 const DELETE_DUMMY = {
     "COM_CODE": COM_CODE,
     "PROD_CD": "G743"
 }
 
 export async function DeleteProduct({ deleteKey }) {
-    console.log("DeleteProduct", deleteKey);
     const data = {
         "COM_CODE": COM_CODE,
         "PROD_CD": `${deleteKey}`,

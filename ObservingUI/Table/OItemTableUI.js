@@ -7,8 +7,6 @@ import CheckBoxState from "../../state/checkBoxState.js";
 
 export class OItemTableUI {
     update(object) {
-        console.log('updated O');
-        console.log(object);
         this.render({ parent: document.getElementById('table-body'), data: object });
     }
 

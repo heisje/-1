@@ -52,10 +52,11 @@ export const Http = {
     async Post(url, data = {}, { queryParams = {}, headers = {}, options = {} } = {}) {
         const fullUrl = `${BASE_URL}${url}${createQueryString(queryParams)}`;
 
-        console.groupCollapsed(`%c[HTTP POST] ${fullUrl}`, 'color: green; font-weight: bold;');
+        console.groupCollapsed(`%c[HTTP POST] ${fullUrl}`, 'color: yellow; font-weight: bold;');
         console.log('%cURL:', 'color: green;', fullUrl);
         console.log('%cHeaders:', 'color: blue;', JSON.stringify(headers, null, 2));
         console.log('%cOptions:', 'color: purple;', JSON.stringify(options, null, 2));
+        console.log('%cBody:', 'color: purple;', JSON.stringify(data, null, 2));
         console.groupEnd();
 
         const response = await fetch(fullUrl, {
@@ -67,6 +68,11 @@ export const Http = {
             body: JSON.stringify(data),
             ...options
         });
+
+        console.groupCollapsed(`%c[${response.status}] ${fullUrl}`, 'color: blue; font-weight: bold;');
+        console.log('%cResponse:', 'color: purple;', response.statusText);
+        console.groupEnd();
+
         if (!response.ok) {
             const error = new Error(`HTTP error! Status: ${response.status} - ${response.statusText}`);
             error.status = response.status;  // 에러 객체에 상태 코드 추가
@@ -74,7 +80,7 @@ export const Http = {
             error.message = error?.data?.message;
             throw error;
         }
-        console.log("response", response);
+
         return response.json();
     },
 

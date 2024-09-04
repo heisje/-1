@@ -5,9 +5,6 @@ import { handleOpenWindow } from "../../modal/handleOpenWindow.js";
 
 export class OSaleTableUI {
     update(object) {
-        console.log('updated O');
-
-        console.log(object);
         this.render({ parent: document.getElementById('table-body'), data: object });
     }
     // {
@@ -91,7 +88,7 @@ export class OSaleTableUI {
                 index++;
             }
         } catch (e) {
-            console.log(e);
+            console.error(e);
         }
     }
 }

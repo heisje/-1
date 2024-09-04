@@ -37,7 +37,6 @@ export function ToggleOrder(arrow) {
     });
 
     const state = OSortState?.getState();
-    console.log("before", OSortState?.getState());
     if (state.has(column)) {
         state.delete(column);
         state.set(column, newOrder);
@@ -45,5 +44,4 @@ export function ToggleOrder(arrow) {
         state.set(column, newOrder);
     }
     OSortState.notify();
-    console.log("after", OSortState?.getState());
 }

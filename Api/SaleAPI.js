@@ -40,7 +40,7 @@ const testDummy = {
     "Count": 10
 }
 
-// const data =
+// const SEARCH_DUMMY =
 // {
 //     "SearchForm": {
 //         COM_CODE: COM_CODE,
@@ -57,7 +57,6 @@ const testDummy = {
 // }
 
 export async function SearchSale({ criteria }) {
-    console.log("criteria", criteria);
 
     // start_date와 end_date를 YYYYMMDD 형식으로 변환
     const formattedStartDate = criteria?.start_date.replace(/-/g, '');
@@ -70,7 +69,6 @@ export async function SearchSale({ criteria }) {
             "END_IO_DATE": `${formattedEndDate}`,
             "IO_NO": `${criteria?.id}`,
             "PROD_LIST": [
-
                 // {
                 //     "COM_CODE": COM_CODE,
                 //     "PROD_CD": "G743"
@@ -126,21 +124,7 @@ const INSERT_DUMMY = {
     PRICE: 12000,
     REMARKS: "insert"
 }
-
-// {
-//     "id": "",
-//     "date": "2024-09-02",
-//     "item": "3030",
-//     "count": "3030",
-//     "price": "3030",
-//     "description": "3030",
-//     "itemIds": [
-//         "3030"
-//     ]
-// }
-
 export async function InsertSale({ insertItem }) {
-    console.log("insertItem", insertItem);
     const formattedDate = insertItem?.date.replace(/-/g, '');
 
     const data = {
@@ -219,7 +203,6 @@ export async function DeleteSaleList({ Keys }) {
         }
     })
     const data = [...keys];
-    console.log("data", data);
 
     return await Http.Post('/sale-delete-list', data);
 }

@@ -12,11 +12,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 데이터
     const dataManager = new Data('sales');
     if (queryData?.['modal-type'] === "update") {
-
         const res = await SaleApi.Get({ key: queryId });
         new SaleVM(formType, false, dataManager, res.Data, 10);
         return
     }
-
-    new SaleVM(formType, false, dataManager, null, 10);
+    const defaultData = {
+        "COM_CODE": "80000",
+        "IO_DATE": new Date().toLocaleDateString('ko-KR', {
+            timeZone: 'Asia/Seoul',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }).replace(/\./g, '').replace(/ /g, '-'),
+        "QTY": 0,
+        "PRICE": 0,
+        "REMARKS": ""
+    }
+    new SaleVM(formType, false, dataManager, defaultData, 10);
 });

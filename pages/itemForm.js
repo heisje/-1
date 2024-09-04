@@ -15,10 +15,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (queryData?.['modal-type'] === "update") {
         const res = await ProductApi.Get({ key: queryId });
-        console.log(res);
         new ItemVM(formType, false, dataManager, res?.Data, 10);
         return;
     }
-
-    new ItemVM(formType, false, dataManager, null, 10);
+    const defaultData = {
+        "PROD_NM": "",
+        "PRICE": 0.0,
+        "Key": {
+            "COM_CODE": "80000",
+            "PROD_CD": ""
+        }
+    }
+    new ItemVM(formType, false, dataManager, defaultData, 10);
 });

@@ -15,9 +15,7 @@
 		<nav>
 			<a href="../index.html">메인페이지</a>
 			<a href="itemSearch.html">품목조회</a>
-			<!-- <a href="itemForm.html">품목등록</a> -->
 			<a href="saleSearch.html">판매조회</a>
-			<!-- <a href="saleForm.html">판매입력</a> -->
 		</nav>
 		<main>
 			<form id="dataForm" name="sales_input_form" onsubmit="return false;">
@@ -66,6 +64,7 @@
 								type="number"
 								id="count"
 								name="count"
+								step="0.000001"
 								class=""
 								placeholder="수량 입력"
 							/>
@@ -77,6 +76,7 @@
 								id="price"
 								name="price"
 								class=""
+								step="0.01"
 								placeholder="단가 입력"
 							/>
 						</li>

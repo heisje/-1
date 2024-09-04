@@ -8,7 +8,7 @@ export function HeaderByModalType(formType) {
                 headerText.textContent = '조회';
                 break;
             case 'post':
-                headerText.textContent = '등록';
+                headerText.textContent = '입력';
                 break;
             case 'update':
                 headerText.textContent = '수정';

@@ -39,7 +39,6 @@ export class Data {
     // UPDATE
     async update(defaultData, updateItem) {
         const res = await this.Api.Update({ updateItem });
-        console.log(res);
     }
 
     // DELETE
@@ -55,7 +54,6 @@ export class Data {
         criteria.CurrentPage = OPageState?.getState()?.CurrentPage ?? 1;
 
         const response = await this.Api.Search({ criteria });
-        console.log(response);
 
         return response;
     }
@@ -63,7 +61,6 @@ export class Data {
     async searchSalesData(criteria) {
         criteria.CurrentPage = OPageState?.getState()?.CurrentPage ?? 1;
         const response = await this.Api.Search({ criteria });
-        console.log(response);
         return response;
     }
 

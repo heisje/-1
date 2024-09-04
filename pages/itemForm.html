@@ -15,9 +15,7 @@
 		<nav>
 			<a href="../index.html">메인페이지</a>
 			<a href="itemSearch.html">품목조회</a>
-			<!-- <a href="itemForm.html">품목등록</a> -->
 			<a href="saleSearch.html">판매조회</a>
-			<!-- <a href="saleForm.html">판매입력</a> -->
 		</nav>
 		<main>
 			<form id="dataForm" name="item_register_form" onsubmit="return false;">
@@ -47,7 +45,12 @@
 						</li>
 						<li>
 							<label for="price">단가</label>
-							<input type="number" name="price" placeholder="단가" />
+							<input
+								type="number"
+								name="price"
+								placeholder="단가"
+								step="0.01"
+							/>
 						</li>
 						<input id="IS_USE" type="hidden" name="IS_USE" />
 					</ul>
