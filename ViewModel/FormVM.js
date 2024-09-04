@@ -133,10 +133,10 @@ export class FormVM {
             const selectedIds = CheckTableVM.getSelectedRowIds(document.getElementById('table-body'));
             if (selectedIds.length > 0) {
                 console.log("selectedIds", selectedIds);
-                const res = this.Api.DeleteList({ Keys: [...selectedIds] });
+                const res = await this.Api.DeleteList({ Keys: [...selectedIds] });
                 await this._virtual_loadSearch(); // Refresh the data
-
-                alert(`${selectedIds.length}개의 항목이 삭제되었습니다.`);
+                console.log(res);
+                alert(`${res.Data}`);
             } else {
                 alert('선택된 항목이 없습니다.');
             }

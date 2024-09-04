@@ -162,7 +162,6 @@ export async function DeleteProductList({ Keys }) {
         }
     })
     const data = [...keys];
-    console.log("data", data);
 
     return await Http.Post('/product-delete-list', data);
 }
